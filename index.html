@@ -13,32 +13,43 @@
     <style>
       body {
         font-family: "Inter", sans-serif;
+        background-color: #111827;
+        color: #e5e7eb;
       }
       .card {
-        background-color: white;
+        background-color: rgba(31, 41, 55, 0.5);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 0.75rem;
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
-          0 4px 6px -2px rgba(0, 0, 0, 0.05);
         padding: 1.5rem;
         transition: all 0.3s ease-in-out;
       }
+      .card:hover {
+        border-color: rgba(79, 70, 229, 0.5);
+        transform: translateY(-5px);
+      }
       .btn-primary {
-        background-color: #4f46e5;
+        background-image: linear-gradient(to right, #4f46e5, #818cf8);
         color: white;
         font-weight: 600;
         padding: 0.75rem 1.5rem;
         border-radius: 0.5rem;
-        transition: background-color 0.3s;
+        transition: all 0.3s;
+        border: none;
+        box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
       }
       .btn-primary:hover {
-        background-color: #4338ca;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(79, 70, 229, 0.6);
       }
       .btn-primary:disabled {
-        background-color: #a5b4fc;
+        background-image: linear-gradient(to right, #4b5563, #6b7280);
         cursor: not-allowed;
+        box-shadow: none;
+        transform: none;
       }
       .loader {
-        border: 4px solid #f3f3f3;
+        border: 4px solid #374151;
         border-top: 4px solid #4f46e5;
         border-radius: 50%;
         width: 40px;
@@ -55,20 +66,24 @@
       }
       .sortable {
         cursor: pointer;
+        transition: color 0.2s;
       }
       .sortable:hover {
-        color: #4f46e5;
+        color: #818cf8;
+      }
+      #historyTableBody tr:hover {
+        background-color: rgba(55, 65, 81, 0.5);
       }
     </style>
   </head>
-  <body class="bg-gray-50 text-gray-800">
+  <body class="bg-gray-900 text-gray-200">
     <div class="container mx-auto p-4 sm:p-6 lg:p-8">
-      <header class="text-center mb-8">
-        <h1 class="text-3xl md:text-4xl font-bold text-gray-900">
+      <header class="text-center mb-12">
+        <h1 class="text-4xl md:text-5xl font-bold text-white">
           Investment Growth Calculator
         </h1>
-        <p class="text-gray-600 mt-2">
-          Compare a stock investment against a fixed-rate return.
+        <p class="text-gray-400 mt-3 text-lg">
+          Visualize your portfolio's potential.
         </p>
       </header>
 
@@ -81,57 +96,57 @@
             <div>
               <label
                 for="stockTicker"
-                class="block text-sm font-medium text-gray-700"
+                class="block text-sm font-medium text-gray-400"
                 >Stock Ticker</label
               >
               <input
                 type="text"
                 id="stockTicker"
                 value="AAPL"
-                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2"
+                class="mt-1 block w-full rounded-md bg-gray-700 border-gray-600 text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2"
               />
             </div>
             <div>
-              <label for="years" class="block text-sm font-medium text-gray-700"
+              <label for="years" class="block text-sm font-medium text-gray-400"
                 >Years to Invest</label
               >
               <input
                 type="number"
                 id="years"
                 value="10"
-                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2"
+                class="mt-1 block w-full rounded-md bg-gray-700 border-gray-600 text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2"
               />
             </div>
             <div>
               <label
                 for="monthlyInvestment"
-                class="block text-sm font-medium text-gray-700"
+                class="block text-sm font-medium text-gray-400"
                 >Monthly Investment ($)</label
               >
               <input
                 type="number"
                 id="monthlyInvestment"
                 value="500"
-                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2"
+                class="mt-1 block w-full rounded-md bg-gray-700 border-gray-600 text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2"
               />
             </div>
             <div class="lg:col-span-1">
               <label
                 for="apiKey"
-                class="block text-sm font-medium text-gray-700"
+                class="block text-sm font-medium text-gray-400"
                 >FMP API Key</label
               >
               <input
                 type="password"
                 id="apiKey"
                 value="fq1PZmpIIsqISVCvUylsjxS8PFgk12tF"
-                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2"
+                class="mt-1 block w-full rounded-md bg-gray-700 border-gray-600 text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2"
               />
               <p class="text-xs text-gray-500 mt-1">
                 <a
                   href="https://site.financialmodelingprep.com/developer/docs"
                   target="_blank"
-                  class="text-indigo-600 hover:underline"
+                  class="text-indigo-400 hover:underline"
                   >Get a free key here</a
                 >.
               </p>
@@ -155,28 +170,94 @@
               <div class="card">
                 <h3
                   id="stock-title"
-                  class="text-xl font-semibold text-indigo-600 mb-4 text-center truncate"
+                  class="text-xl font-semibold text-indigo-400 mb-4 text-center truncate"
                 >
                   Stock Portfolio
                 </h3>
-                <div class="space-y-3">
-                  <div class="flex justify-between items-baseline">
-                    <span class="text-sm text-gray-500">Initial Price:</span>
+                <div class="space-y-4">
+                  <div class="flex justify-between items-center">
+                    <span class="text-sm text-gray-400 flex items-center"
+                      ><svg
+                        class="w-4 h-4 mr-2"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M11 11V3m0 8h8m-8 0H3m8 4.5a4.5 4.5 0 100-9 4.5 4.5 0 000 9z"
+                        ></path></svg
+                      >Initial Price</span
+                    >
                     <span
                       id="initialStockPrice"
-                      class="text-lg font-bold"
+                      class="text-lg font-bold text-white"
                     ></span>
                   </div>
-                  <div class="flex justify-between items-baseline">
-                    <span class="text-sm text-gray-500">Start Date:</span>
-                    <span id="initialDate" class="text-lg font-bold"></span>
+                  <div class="flex justify-between items-center">
+                    <span class="text-sm text-gray-400 flex items-center"
+                      ><svg
+                        class="w-4 h-4 mr-2"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                        ></path></svg
+                      >Start Date</span
+                    >
+                    <span
+                      id="initialDate"
+                      class="text-lg font-bold text-white"
+                    ></span>
                   </div>
-                  <div class="flex justify-between items-baseline">
-                    <span class="text-sm text-gray-500">Final Value:</span>
-                    <span id="stockValue" class="text-lg font-bold"></span>
+                  <div class="flex justify-between items-center">
+                    <span class="text-sm text-gray-400 flex items-center"
+                      ><svg
+                        class="w-4 h-4 mr-2"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"
+                        ></path></svg
+                      >Final Value</span
+                    >
+                    <span
+                      id="stockValue"
+                      class="text-lg font-bold text-white"
+                    ></span>
                   </div>
-                  <div class="flex justify-between items-baseline">
-                    <span class="text-sm text-gray-500">Profit %:</span>
+                  <div class="flex justify-between items-center">
+                    <span class="text-sm text-gray-400 flex items-center"
+                      ><svg
+                        class="w-4 h-4 mr-2"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
+                        ></path></svg
+                      >Profit %</span
+                    >
                     <span
                       id="stockProfitPercent"
                       class="text-lg font-bold"
@@ -186,21 +267,72 @@
               </div>
               <div class="card">
                 <h3
-                  class="text-xl font-semibold text-green-600 mb-4 text-center"
+                  class="text-xl font-semibold text-emerald-400 mb-4 text-center"
                 >
                   Fixed 4% Return
                 </h3>
-                <div class="space-y-3">
-                  <div class="flex justify-between items-baseline">
-                    <span class="text-sm text-gray-500">Total Invested:</span>
-                    <span id="totalInvestment" class="text-lg font-bold"></span>
+                <div class="space-y-4">
+                  <div class="flex justify-between items-center">
+                    <span class="text-sm text-gray-400 flex items-center"
+                      ><svg
+                        class="w-4 h-4 mr-2"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"
+                        ></path></svg
+                      >Total Invested</span
+                    >
+                    <span
+                      id="totalInvestment"
+                      class="text-lg font-bold text-white"
+                    ></span>
                   </div>
-                  <div class="flex justify-between items-baseline">
-                    <span class="text-sm text-gray-500">Final Value:</span>
-                    <span id="fixedValue" class="text-lg font-bold"></span>
+                  <div class="flex justify-between items-center">
+                    <span class="text-sm text-gray-400 flex items-center"
+                      ><svg
+                        class="w-4 h-4 mr-2"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                        ></path></svg
+                      >Final Value</span
+                    >
+                    <span
+                      id="fixedValue"
+                      class="text-lg font-bold text-white"
+                    ></span>
                   </div>
-                  <div class="flex justify-between items-baseline">
-                    <span class="text-sm text-gray-500">Profit %:</span>
+                  <div class="flex justify-between items-center">
+                    <span class="text-sm text-gray-400 flex items-center"
+                      ><svg
+                        class="w-4 h-4 mr-2"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
+                        ></path></svg
+                      >Profit %</span
+                    >
                     <span
                       id="fixedProfitPercent"
                       class="text-lg font-bold"
@@ -215,7 +347,7 @@
 
             <!-- Chart -->
             <div class="card">
-              <h3 class="text-xl font-semibold mb-4 text-center">
+              <h3 class="text-xl font-semibold mb-4 text-center text-white">
                 Portfolio Growth Over Time
               </h3>
               <div style="position: relative; height: 30vh">
@@ -231,68 +363,67 @@
             style="display: none"
           >
             <div class="flex justify-between items-center mb-4">
-              <h3 class="text-xl font-semibold">Calculation History</h3>
+              <h3 class="text-xl font-semibold text-white">
+                Calculation History
+              </h3>
               <button
                 id="clearHistoryBtn"
-                class="text-sm font-medium text-red-600 hover:text-red-800"
+                class="text-sm font-medium text-red-500 hover:text-red-400"
               >
                 Clear History
               </button>
             </div>
             <div class="overflow-x-auto">
-              <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
+              <table class="min-w-full divide-y divide-gray-700">
+                <thead class="bg-gray-800/50">
                   <tr>
                     <th
                       scope="col"
-                      class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider"
                     >
                       Stock
                     </th>
                     <th
                       scope="col"
-                      class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sortable"
+                      class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider sortable"
                       id="sort-companyName"
                     >
                       Company <span id="sort-icon-companyName"></span>
                     </th>
                     <th
                       scope="col"
-                      class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider"
                     >
                       Years
                     </th>
                     <th
                       scope="col"
-                      class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider"
                     >
                       Monthly
                     </th>
                     <th
                       scope="col"
-                      class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider"
                     >
                       Invested
                     </th>
                     <th
                       scope="col"
-                      class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider"
                     >
                       Final Value
                     </th>
                     <th
                       scope="col"
-                      class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sortable"
+                      class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider sortable"
                       id="sort-profitPercent"
                     >
                       Profit % <span id="sort-icon-profitPercent"></span>
                     </th>
                   </tr>
                 </thead>
-                <tbody
-                  id="historyTableBody"
-                  class="bg-white divide-y divide-gray-200"
-                >
+                <tbody id="historyTableBody" class="divide-y divide-gray-700">
                   <!-- Rows will be inserted here by JavaScript -->
                 </tbody>
               </table>
@@ -306,7 +437,7 @@
         </div>
         <div
           id="errorMessage"
-          class="card bg-red-100 border border-red-400 text-red-700"
+          class="card bg-red-900/50 border-red-500 text-red-300"
           style="display: none"
         ></div>
       </main>
@@ -347,7 +478,7 @@
        */
       function clearHistory() {
         calculationHistory = [];
-        renderHistoryTable(); // This will hide the table
+        renderHistoryTable();
         if (growthChart) {
           growthChart.destroy();
           growthChart = null;
@@ -363,7 +494,7 @@
           sortState.direction = sortState.direction === "asc" ? "desc" : "asc";
         } else {
           sortState.column = column;
-          sortState.direction = column === "profitPercent" ? "desc" : "asc"; // Default profit to desc, name to asc
+          sortState.direction = column === "profitPercent" ? "desc" : "asc";
         }
         sortHistory();
         renderHistoryTable();
@@ -392,12 +523,10 @@
        * Main function to handle the calculation process.
        */
       async function handleCalculation() {
-        // 1. Reset UI
         errorMessageDiv.style.display = "none";
         loader.style.display = "flex";
         calculateBtn.disabled = true;
 
-        // 2. Get User Inputs
         const stockTicker = document
           .getElementById("stockTicker")
           .value.toUpperCase();
@@ -407,7 +536,6 @@
         );
         const apiKey = document.getElementById("apiKey").value;
 
-        // 3. Validate Inputs
         if (
           !stockTicker ||
           isNaN(years) ||
@@ -424,7 +552,6 @@
         }
 
         try {
-          // 4. Fetch Data in parallel
           const [historicalData, companyName] = await Promise.all([
             fetchStockData(stockTicker, years, apiKey),
             fetchCompanyProfile(stockTicker, apiKey),
@@ -438,7 +565,6 @@
             return;
           }
 
-          // 5. Perform Calculations
           const fixedInvestment = calculateFixedReturn(
             monthlyInvestment,
             years,
@@ -451,7 +577,6 @@
             fixedInvestment.totalInvested
           );
 
-          // 6. Display Results
           displayResults(
             stockTicker,
             companyName || stockTicker,
@@ -465,18 +590,11 @@
               "An error occurred during calculation. Please try again."
           );
         } finally {
-          // 7. Reset UI state
           loader.style.display = "none";
           resetButton();
         }
       }
 
-      /**
-       * Fetches company profile information.
-       * @param {string} ticker - The stock ticker symbol.
-       * @param {string} apiKey - The user's API key.
-       * @returns {Promise<string|null>} The company name or null if not found.
-       */
       async function fetchCompanyProfile(ticker, apiKey) {
         const url = `https://financialmodelingprep.com/api/v3/profile/${ticker}?apikey=${apiKey}`;
         try {
@@ -490,45 +608,26 @@
         }
       }
 
-      /**
-       * Fetches historical stock data from the Financial Modeling Prep API.
-       * @param {string} ticker - The stock ticker symbol.
-       * @param {number} years - The number of years of historical data to fetch.
-       * @param {string} apiKey - The user's API key for Financial Modeling Prep.
-       * @returns {Promise<Array>} A promise that resolves to an array of historical price objects.
-       */
       async function fetchStockData(ticker, years, apiKey) {
         const today = new Date();
         const fromDate = new Date();
         fromDate.setFullYear(today.getFullYear() - years);
-
         const fromDateString = fromDate.toISOString().split("T")[0];
         const toDateString = today.toISOString().split("T")[0];
-
         const url = `https://financialmodelingprep.com/api/v3/historical-price-full/${ticker}?from=${fromDateString}&to=${toDateString}&apikey=${apiKey}`;
-
         const response = await fetch(url);
         if (response.status === 401) {
           throw new Error(
-            `API Request Failed (401 Unauthorized). Please check that your API Key is correct and has permissions for this request.`
+            `API Request Failed (401 Unauthorized). Please check that your API Key is correct.`
           );
         }
         if (!response.ok) {
           throw new Error(`API request failed with status ${response.status}.`);
         }
         const data = await response.json();
-
         return data.historical ? data.historical.reverse() : [];
       }
 
-      /**
-       * Calculates the final value and monthly growth of a stock portfolio.
-       * @param {Array} historicalData - Array of historical stock prices.
-       * @param {number} monthlyInvestment - The amount invested each month.
-       * @param {number} years - The total investment duration in years.
-       * @param {number} totalInvested - The total amount of principal invested.
-       * @returns {object} An object containing the final value and the history of portfolio value.
-       */
       function calculateStockPortfolio(
         historicalData,
         monthlyInvestment,
@@ -542,9 +641,7 @@
         let dataIndex = 0;
 
         for (let i = 0; i < totalMonths; i++) {
-          if (dataIndex >= historicalData.length) {
-            break;
-          }
+          if (dataIndex >= historicalData.length) break;
 
           const currentDate = new Date(historicalData[0].date);
           currentDate.setMonth(currentDate.getMonth() + i);
@@ -565,11 +662,8 @@
 
           if (monthlyData) {
             const price = monthlyData.adjClose;
-            const sharesBought = monthlyInvestment / price;
-            totalShares += sharesBought;
-
-            const currentPortfolioValue = totalShares * price;
-            portfolioHistory.push(currentPortfolioValue);
+            totalShares += monthlyInvestment / price;
+            portfolioHistory.push(totalShares * price);
             labels.push(monthlyData.date);
           } else {
             break;
@@ -581,7 +675,9 @@
         const finalPrice = historicalData[historicalData.length - 1].adjClose;
         const finalValue = totalShares * finalPrice;
         const profitPercent =
-          ((finalValue - totalInvested) / totalInvested) * 100;
+          totalInvested > 0
+            ? ((finalValue - totalInvested) / totalInvested) * 100
+            : 0;
 
         return {
           finalValue,
@@ -593,13 +689,6 @@
         };
       }
 
-      /**
-       * Calculates the final value and monthly growth of a fixed-return investment.
-       * @param {number} monthlyInvestment - The amount invested each month.
-       * @param {number} years - The total investment duration in years.
-       * @param {number} annualRate - The annual interest rate (e.g., 0.04 for 4%).
-       * @returns {object} An object containing the final value and the history of portfolio value.
-       */
       function calculateFixedReturn(monthlyInvestment, years, annualRate) {
         const monthlyRate = annualRate / 12;
         const totalMonths = years * 12;
@@ -614,7 +703,9 @@
         }
 
         const profitPercent =
-          ((currentValue - totalInvested) / totalInvested) * 100;
+          totalInvested > 0
+            ? ((currentValue - totalInvested) / totalInvested) * 100
+            : 0;
 
         return {
           finalValue: currentValue,
@@ -624,11 +715,6 @@
         };
       }
 
-      /**
-       * Formats a number as a US dollar currency string.
-       * @param {number} number - The number to format.
-       * @returns {string} The formatted currency string.
-       */
       function formatCurrency(number) {
         return new Intl.NumberFormat("en-US", {
           style: "currency",
@@ -637,25 +723,12 @@
         }).format(number);
       }
 
-      /**
-       * Formats a number as a percentage string with color.
-       * @param {number} number - The number to format.
-       * @returns {string} The formatted HTML string for the percentage.
-       */
       function formatPercent(number) {
-        const colorClass = number >= 0 ? "text-green-600" : "text-red-600";
+        const colorClass = number >= 0 ? "text-emerald-400" : "text-red-400";
         return `<span class="${colorClass}">${number.toFixed(2)}%</span>`;
       }
 
-      /**
-       * Renders the calculated results to the UI.
-       * @param {string} ticker - The stock ticker symbol.
-       * @param {string} companyName - The full name of the company.
-       * @param {object} stockData - The calculated stock portfolio data.
-       * @param {object} fixedData - The calculated fixed-return investment data.
-       */
       function displayResults(ticker, companyName, stockData, fixedData) {
-        // Update summary cards
         document.getElementById(
           "stock-title"
         ).innerText = `${companyName} (${ticker})`;
@@ -689,20 +762,18 @@
           fixedData.profitPercent
         );
 
-        // Update comparison message
         const difference = stockData.finalValue - fixedData.finalValue;
         const comparisonMsgEl = document.getElementById("comparisonMessage");
         if (difference > 0) {
-          comparisonMsgEl.innerHTML = `The ${companyName} portfolio performed <strong class="text-green-600">better</strong> by <strong class="text-green-600">${formatCurrency(
+          comparisonMsgEl.innerHTML = `The ${companyName} portfolio performed <strong class="text-emerald-400">better</strong> by <strong class="text-emerald-400">${formatCurrency(
             difference
           )}</strong>.`;
         } else {
-          comparisonMsgEl.innerHTML = `The fixed 4% return performed <strong class="text-red-600">better</strong> by <strong class="text-red-600">${formatCurrency(
+          comparisonMsgEl.innerHTML = `The fixed 4% return performed <strong class="text-red-400">better</strong> by <strong class="text-red-400">${formatCurrency(
             Math.abs(difference)
           )}</strong>.`;
         }
 
-        // Add current calculation to history and render table
         const historyEntry = {
           ticker: ticker,
           companyName: companyName,
@@ -719,14 +790,10 @@
         sortHistory();
         renderHistoryTable();
 
-        // Show all results
         resultsDiv.style.display = "grid";
         renderChart(fixedData);
       }
 
-      /**
-       * Renders the calculation history table.
-       */
       function renderHistoryTable() {
         historyTableBody.innerHTML = "";
 
@@ -737,7 +804,6 @@
           return;
         }
 
-        // Update sort icons in headers
         document
           .querySelectorAll('[id^="sort-icon-"]')
           .forEach((icon) => (icon.innerHTML = ""));
@@ -751,24 +817,23 @@
 
         calculationHistory.forEach((entry) => {
           const row = document.createElement("tr");
-
           row.innerHTML = `
-                    <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${
+                    <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-white">${
                       entry.ticker
                     }</td>
-                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 truncate" title="${
+                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-300 truncate" title="${
                       entry.companyName
                     }">${entry.companyName}</td>
-                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">${
+                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-300">${
                       entry.years
                     }</td>
-                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">${formatCurrency(
+                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-300">${formatCurrency(
                       parseFloat(entry.monthlyInvestment)
                     )}</td>
-                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">${formatCurrency(
+                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-300">${formatCurrency(
                       entry.totalInvested
                     )}</td>
-                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">${formatCurrency(
+                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-300">${formatCurrency(
                       entry.finalValue
                     )}</td>
                     <td class="px-4 py-4 whitespace-nowrap text-sm font-bold">${formatPercent(
@@ -779,23 +844,20 @@
         });
       }
 
-      /**
-       * Renders the growth chart using Chart.js with all historical calculations.
-       * @param {object} fixedData - The calculated fixed-return investment data for the LATEST calculation.
-       */
       function renderChart(fixedData) {
         if (growthChart) {
           growthChart.destroy();
         }
 
+        const ctx = document.getElementById("growthChart").getContext("2d");
         const datasets = [];
         const colors = [
-          "#4f46e5",
-          "#e11d48",
-          "#f59e0b",
-          "#10b981",
-          "#9333ea",
-          "#3b82f6",
+          { border: "#818cf8", fill: ["#4f46e5", "#312e81"] },
+          { border: "#f472b6", fill: ["#ec4899", "#831843"] },
+          { border: "#fbbf24", fill: ["#f59e0b", "#92400e"] },
+          { border: "#34d399", fill: ["#10b981", "#065f46"] },
+          { border: "#a78bfa", fill: ["#8b5cf6", "#5b21b6"] },
+          { border: "#60a5fa", fill: ["#3b82f6", "#1e40af"] },
         ];
 
         let masterLabels = [];
@@ -808,28 +870,39 @@
         }
 
         calculationHistory.forEach((entry, index) => {
+          const color = colors[index % colors.length];
+          const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+          gradient.addColorStop(0, color.fill[0] + "66"); // Add alpha transparency
+          gradient.addColorStop(1, color.fill[1] + "1a");
+
           datasets.push({
             label: `${entry.ticker} Portfolio`,
             data: entry.history,
-            borderColor: colors[index % colors.length],
-            backgroundColor: colors[index % colors.length] + "1a",
+            borderColor: color.border,
+            backgroundColor: gradient,
             fill: true,
-            tension: 0.1,
+            tension: 0.3,
+            pointRadius: 0,
+            pointHoverRadius: 5,
+            pointBackgroundColor: color.border,
           });
         });
 
         if (fixedData) {
+          const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+          gradient.addColorStop(0, "rgba(22, 163, 74, 0.4)");
+          gradient.addColorStop(1, "rgba(22, 163, 74, 0.05)");
           datasets.push({
             label: "Fixed 4% Return",
             data: fixedData.history,
             borderColor: "#16a34a",
-            backgroundColor: "rgba(22, 163, 74, 0.1)",
+            backgroundColor: gradient,
             fill: true,
-            tension: 0.1,
+            tension: 0.3,
+            pointRadius: 0,
           });
         }
 
-        const ctx = document.getElementById("growthChart").getContext("2d");
         growthChart = new Chart(ctx, {
           type: "line",
           data: {
@@ -842,31 +915,34 @@
             scales: {
               y: {
                 ticks: {
-                  callback: function (value, index, values) {
-                    return formatCurrency(value);
-                  },
+                  color: "#9ca3af",
+                  callback: (value) => formatCurrency(value),
                 },
+                grid: { color: "rgba(255, 255, 255, 0.1)" },
               },
               x: {
                 ticks: {
+                  color: "#9ca3af",
                   maxRotation: 45,
                   minRotation: 45,
                   autoSkip: true,
                   maxTicksLimit: 15,
                 },
+                grid: { color: "rgba(255, 255, 255, 0.05)" },
               },
             },
             plugins: {
+              legend: { labels: { color: "#d1d5db" } },
               tooltip: {
+                backgroundColor: "#1f2937",
+                titleColor: "#e5e7eb",
+                bodyColor: "#d1d5db",
                 callbacks: {
                   label: function (context) {
                     let label = context.dataset.label || "";
-                    if (label) {
-                      label += ": ";
-                    }
-                    if (context.parsed.y !== null) {
+                    if (label) label += ": ";
+                    if (context.parsed.y !== null)
                       label += formatCurrency(context.parsed.y);
-                    }
                     return label;
                   },
                 },
@@ -876,19 +952,12 @@
         });
       }
 
-      /**
-       * Displays an error message in the UI.
-       * @param {string} message - The error message to display.
-       */
       function showError(message) {
         errorMessageDiv.innerText = message;
         errorMessageDiv.style.display = "block";
         loader.style.display = "none";
       }
 
-      /**
-       * Re-enables the calculate button.
-       */
       function resetButton() {
         calculateBtn.disabled = false;
       }
