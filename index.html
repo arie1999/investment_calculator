@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Investment Portfolio Calculator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+      }
+      .card {
+        background-color: white;
+        border-radius: 0.75rem;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+          0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        padding: 1.5rem;
+        transition: all 0.3s ease-in-out;
+      }
+      .btn-primary {
+        background-color: #4f46e5;
+        color: white;
+        font-weight: 600;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        transition: background-color 0.3s;
+      }
+      .btn-primary:hover {
+        background-color: #4338ca;
+      }
+      .btn-primary:disabled {
+        background-color: #a5b4fc;
+        cursor: not-allowed;
+      }
+      .loader {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #4f46e5;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+  </head>
+  <body class="bg-gray-50 text-gray-800">
+    <div class="container mx-auto p-4 md:p-8 max-w-7xl">
+      <header class="text-center mb-8">
+        <h1 class="text-3xl md:text-4xl font-bold text-gray-900">
+          Investment Growth Calculator
+        </h1>
+        <p class="text-gray-600 mt-2">
+          Compare a stock investment against a fixed-rate return.
+        </p>
+      </header>
+
+      <main>
+        <!-- Input Form Card -->
+        <div class="card mb-8">
+          <div
+            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 items-end"
+          >
+            <div>
+              <label
+                for="stockTicker"
+                class="block text-sm font-medium text-gray-700"
+                >Stock Ticker</label
+              >
+              <input
+                type="text"
+                id="stockTicker"
+                value="AAPL"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2"
+              />
+            </div>
+            <div>
+              <label for="years" class="block text-sm font-medium text-gray-700"
+                >Years to Invest</label
+              >
+              <input
+                type="number"
+                id="years"
+                value="10"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2"
+              />
+            </div>
+            <div>
+              <label
+                for="monthlyInvestment"
+                class="block text-sm font-medium text-gray-700"
+                >Monthly Investment ($)</label
+              >
+              <input
+                type="number"
+                id="monthlyInvestment"
+                value="500"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2"
+              />
+            </div>
+            <div class="lg:col-span-1">
+              <label
+                for="apiKey"
+                class="block text-sm font-medium text-gray-700"
+                >FMP API Key</label
+              >
+              <input
+                type="password"
+                id="apiKey"
+                value="fq1PZmpIIsqISVCvUylsjxS8PFgk12tF"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2"
+              />
+              <p class="text-xs text-gray-500 mt-1">
+                <a
+                  href="https://site.financialmodelingprep.com/developer/docs"
+                  target="_blank"
+                  class="text-indigo-600 hover:underline"
+                  >Get a free key here</a
+                >.
+              </p>
+            </div>
+            <button id="calculateBtn" class="btn-primary w-full">
+              Calculate
+            </button>
+          </div>
+        </div>
+
+        <!-- Results Display -->
+        <div
+          id="results"
+          class="grid grid-cols-1 lg:grid-cols-5 gap-8"
+          style="display: none"
+        >
+          <!-- Left Column -->
+          <div class="lg:col-span-3 space-y-8">
+            <!-- Summary Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="card">
+                <h3
+                  id="stock-title"
+                  class="text-xl font-semibold text-indigo-600 mb-4 text-center"
+                >
+                  Stock Portfolio
+                </h3>
+                <div class="grid grid-cols-2 gap-y-4 gap-x-2 text-center">
+                  <div>
+                    <p id="initialStockPrice" class="text-xl font-bold"></p>
+                    <p class="text-sm text-gray-500 mt-1">Initial Price</p>
+                  </div>
+                  <div>
+                    <p id="initialDate" class="text-xl font-bold"></p>
+                    <p class="text-sm text-gray-500 mt-1">Start Date</p>
+                  </div>
+                  <div>
+                    <p id="stockValue" class="text-xl font-bold"></p>
+                    <p class="text-sm text-gray-500 mt-1">Final Value</p>
+                  </div>
+                  <div>
+                    <p id="stockProfitPercent" class="text-xl font-bold"></p>
+                    <p class="text-sm text-gray-500 mt-1">Profit %</p>
+                  </div>
+                </div>
+              </div>
+              <div class="card">
+                <h3
+                  class="text-xl font-semibold text-green-600 mb-4 text-center"
+                >
+                  Fixed 4% Return
+                </h3>
+                <div class="grid grid-cols-3 gap-2 text-center">
+                  <div>
+                    <p id="totalInvestment" class="text-xl font-bold"></p>
+                    <p class="text-sm text-gray-500 mt-1">Total Invested</p>
+                  </div>
+                  <div>
+                    <p id="fixedValue" class="text-xl font-bold"></p>
+                    <p class="text-sm text-gray-500 mt-1">Final Value</p>
+                  </div>
+                  <div>
+                    <p id="fixedProfitPercent" class="text-xl font-bold"></p>
+                    <p class="text-sm text-gray-500 mt-1">Profit %</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Comparison Message -->
+            <div id="comparisonMessage" class="card text-center text-lg"></div>
+
+            <!-- Chart -->
+            <div class="card">
+              <h3 class="text-xl font-semibold mb-4 text-center">
+                Portfolio Growth Over Time
+              </h3>
+              <div style="position: relative; height: 30vh">
+                <canvas id="growthChart"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column -->
+          <div
+            id="historyTableContainer"
+            class="lg:col-span-2 card"
+            style="display: none"
+          >
+            <h3 class="text-xl font-semibold mb-4 text-center">
+              Calculation History
+            </h3>
+            <div class="overflow-x-auto">
+              <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th
+                      scope="col"
+                      class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    >
+                      Stock
+                    </th>
+                    <th
+                      scope="col"
+                      class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    >
+                      Years
+                    </th>
+                    <th
+                      scope="col"
+                      class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    >
+                      Monthly
+                    </th>
+                    <th
+                      scope="col"
+                      class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    >
+                      Invested
+                    </th>
+                    <th
+                      scope="col"
+                      class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    >
+                      Final Value
+                    </th>
+                    <th
+                      scope="col"
+                      class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    >
+                      Profit %
+                    </th>
+                  </tr>
+                </thead>
+                <tbody
+                  id="historyTableBody"
+                  class="bg-white divide-y divide-gray-200"
+                >
+                  <!-- Rows will be inserted here by JavaScript -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Loader and Error Messages -->
+        <div id="loader" class="flex justify-center py-8" style="display: none">
+          <div class="loader"></div>
+        </div>
+        <div
+          id="errorMessage"
+          class="card bg-red-100 border border-red-400 text-red-700"
+          style="display: none"
+        ></div>
+      </main>
+    </div>
+
+    <script>
+      // --- Global State ---
+      let calculationHistory = [];
+      let growthChart = null;
+
+      // --- DOM Elements ---
+      const calculateBtn = document.getElementById("calculateBtn");
+      const resultsDiv = document.getElementById("results");
+      const loader = document.getElementById("loader");
+      const errorMessageDiv = document.getElementById("errorMessage");
+      const historyTableContainer = document.getElementById(
+        "historyTableContainer"
+      );
+      const historyTableBody = document.getElementById("historyTableBody");
+
+      // --- Event Listener ---
+      calculateBtn.addEventListener("click", handleCalculation);
+
+      /**
+       * Main function to handle the calculation process.
+       * It orchestrates fetching data, performing calculations, and rendering results.
+       */
+      async function handleCalculation() {
+        // 1. Reset UI
+        resultsDiv.style.display = "none";
+        errorMessageDiv.style.display = "none";
+        loader.style.display = "flex";
+        calculateBtn.disabled = true;
+
+        // 2. Get User Inputs
+        const stockTicker = document
+          .getElementById("stockTicker")
+          .value.toUpperCase();
+        const years = parseInt(document.getElementById("years").value);
+        const monthlyInvestment = parseFloat(
+          document.getElementById("monthlyInvestment").value
+        );
+        const apiKey = document.getElementById("apiKey").value;
+
+        // 3. Validate Inputs
+        if (
+          !stockTicker ||
+          isNaN(years) ||
+          years <= 0 ||
+          isNaN(monthlyInvestment) ||
+          monthlyInvestment <= 0 ||
+          !apiKey
+        ) {
+          showError(
+            "Please enter valid inputs for all fields, including your API Key."
+          );
+          resetButton();
+          return;
+        }
+
+        try {
+          // 4. Fetch Historical Data
+          const historicalData = await fetchStockData(
+            stockTicker,
+            years,
+            apiKey
+          );
+          if (!historicalData || historicalData.length === 0) {
+            showError(
+              `Could not fetch historical data for ${stockTicker}. Please check the ticker symbol and your API key.`
+            );
+            resetButton();
+            return;
+          }
+
+          // 5. Perform Calculations
+          const fixedInvestment = calculateFixedReturn(
+            monthlyInvestment,
+            years,
+            0.04
+          );
+          const stockPortfolio = calculateStockPortfolio(
+            historicalData,
+            monthlyInvestment,
+            years,
+            fixedInvestment.totalInvested
+          );
+
+          // 6. Display Results
+          displayResults(stockTicker, stockPortfolio, fixedInvestment);
+        } catch (error) {
+          console.error("Calculation Error:", error);
+          showError(
+            error.message ||
+              "An error occurred during calculation. Please try again."
+          );
+        } finally {
+          // 7. Reset UI state
+          loader.style.display = "none";
+          resetButton();
+        }
+      }
+
+      /**
+       * Fetches historical stock data from the Financial Modeling Prep API.
+       * @param {string} ticker - The stock ticker symbol.
+       * @param {number} years - The number of years of historical data to fetch.
+       * @param {string} apiKey - The user's API key for Financial Modeling Prep.
+       * @returns {Promise<Array>} A promise that resolves to an array of historical price objects.
+       */
+      async function fetchStockData(ticker, years, apiKey) {
+        const today = new Date();
+        const fromDate = new Date();
+        fromDate.setFullYear(today.getFullYear() - years);
+
+        const fromDateString = fromDate.toISOString().split("T")[0];
+        const toDateString = today.toISOString().split("T")[0];
+
+        const url = `https://financialmodelingprep.com/api/v3/historical-price-full/${ticker}?from=${fromDateString}&to=${toDateString}&apikey=${apiKey}`;
+
+        const response = await fetch(url);
+        if (response.status === 401) {
+          throw new Error(
+            `API Request Failed (401 Unauthorized). Please check that your API Key is correct and has permissions for this request.`
+          );
+        }
+        if (!response.ok) {
+          throw new Error(`API request failed with status ${response.status}.`);
+        }
+        const data = await response.json();
+
+        // The API returns an object with a 'historical' property
+        return data.historical ? data.historical.reverse() : []; // Reverse to have oldest data first
+      }
+
+      /**
+       * Calculates the final value and monthly growth of a stock portfolio.
+       * @param {Array} historicalData - Array of historical stock prices.
+       * @param {number} monthlyInvestment - The amount invested each month.
+       * @param {number} years - The total investment duration in years.
+       * @param {number} totalInvested - The total amount of principal invested.
+       * @returns {object} An object containing the final value and the history of portfolio value.
+       */
+      function calculateStockPortfolio(
+        historicalData,
+        monthlyInvestment,
+        years,
+        totalInvested
+      ) {
+        let totalShares = 0;
+        const portfolioHistory = [];
+        const labels = [];
+        const totalMonths = years * 12;
+        let dataIndex = 0;
+
+        for (let i = 0; i < totalMonths; i++) {
+          const currentDate = new Date(historicalData[0].date);
+          currentDate.setMonth(currentDate.getMonth() + i);
+
+          // Find the closest available trading day's data for the current month
+          let monthlyData = null;
+          while (dataIndex < historicalData.length) {
+            const recordDate = new Date(historicalData[dataIndex].date);
+            if (
+              recordDate.getFullYear() > currentDate.getFullYear() ||
+              (recordDate.getFullYear() === currentDate.getFullYear() &&
+                recordDate.getMonth() >= currentDate.getMonth())
+            ) {
+              monthlyData = historicalData[dataIndex];
+              break;
+            }
+            dataIndex++;
+          }
+
+          if (monthlyData) {
+            const price = monthlyData.adjClose;
+            const sharesBought = monthlyInvestment / price;
+            totalShares += sharesBought;
+
+            const currentPortfolioValue = totalShares * price;
+            portfolioHistory.push(currentPortfolioValue);
+            labels.push(monthlyData.date);
+          } else {
+            // If no data for a month, carry over the last value
+            if (portfolioHistory.length > 0) {
+              portfolioHistory.push(
+                portfolioHistory[portfolioHistory.length - 1]
+              );
+              labels.push(labels[labels.length - 1]);
+            }
+          }
+        }
+
+        const initialPrice = historicalData[0].adjClose;
+        const initialDate = historicalData[0].date;
+        const finalPrice = historicalData[historicalData.length - 1].adjClose;
+        const finalValue = totalShares * finalPrice;
+        const profitPercent =
+          ((finalValue - totalInvested) / totalInvested) * 100;
+
+        return {
+          finalValue,
+          history: portfolioHistory,
+          labels,
+          initialPrice,
+          initialDate,
+          profitPercent,
+        };
+      }
+
+      /**
+       * Calculates the final value and monthly growth of a fixed-return investment.
+       * @param {number} monthlyInvestment - The amount invested each month.
+       * @param {number} years - The total investment duration in years.
+       * @param {number} annualRate - The annual interest rate (e.g., 0.04 for 4%).
+       * @returns {object} An object containing the final value and the history of portfolio value.
+       */
+      function calculateFixedReturn(monthlyInvestment, years, annualRate) {
+        const monthlyRate = annualRate / 12;
+        const totalMonths = years * 12;
+        let currentValue = 0;
+        const history = [];
+        const totalInvested = monthlyInvestment * totalMonths;
+
+        for (let i = 0; i < totalMonths; i++) {
+          currentValue += monthlyInvestment;
+          currentValue *= 1 + monthlyRate;
+          history.push(currentValue);
+        }
+
+        const profitPercent =
+          ((currentValue - totalInvested) / totalInvested) * 100;
+
+        return {
+          finalValue: currentValue,
+          history,
+          totalInvested,
+          profitPercent,
+        };
+      }
+
+      /**
+       * Formats a number as a US dollar currency string.
+       * @param {number} number - The number to format.
+       * @returns {string} The formatted currency string.
+       */
+      function formatCurrency(number) {
+        return new Intl.NumberFormat("en-US", {
+          style: "currency",
+          currency: "USD",
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 0,
+        }).format(number);
+      }
+
+      /**
+       * Formats a number as a percentage string with color.
+       * @param {number} number - The number to format.
+       * @returns {string} The formatted HTML string for the percentage.
+       */
+      function formatPercent(number) {
+        const colorClass = number >= 0 ? "text-green-600" : "text-red-600";
+        return `<span class="${colorClass}">${number.toFixed(2)}%</span>`;
+      }
+
+      /**
+       * Renders the calculated results to the UI.
+       * @param {string} ticker - The stock ticker symbol.
+       * @param {object} stockData - The calculated stock portfolio data.
+       * @param {object} fixedData - The calculated fixed-return investment data.
+       */
+      function displayResults(ticker, stockData, fixedData) {
+        // Update summary cards
+        document.getElementById(
+          "stock-title"
+        ).innerText = `${ticker} Portfolio`;
+        document.getElementById("stockValue").innerText = formatCurrency(
+          stockData.finalValue
+        );
+        document.getElementById("initialStockPrice").innerText = formatCurrency(
+          stockData.initialPrice
+        );
+        const date = new Date(stockData.initialDate);
+        const displayDate = new Date(
+          date.valueOf() + date.getTimezoneOffset() * 60 * 1000
+        );
+        document.getElementById("initialDate").innerText =
+          displayDate.toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+            year: "2-digit",
+          });
+        document.getElementById("stockProfitPercent").innerHTML = formatPercent(
+          stockData.profitPercent
+        );
+
+        document.getElementById("fixedValue").innerText = formatCurrency(
+          fixedData.finalValue
+        );
+        document.getElementById("totalInvestment").innerText = formatCurrency(
+          fixedData.totalInvested
+        );
+        document.getElementById("fixedProfitPercent").innerHTML = formatPercent(
+          fixedData.profitPercent
+        );
+
+        // Update comparison message
+        const difference = stockData.finalValue - fixedData.finalValue;
+        const comparisonMsgEl = document.getElementById("comparisonMessage");
+        if (difference > 0) {
+          comparisonMsgEl.innerHTML = `The ${ticker} portfolio performed <strong class="text-green-600">better</strong> by <strong class="text-green-600">${formatCurrency(
+            difference
+          )}</strong>.`;
+        } else {
+          comparisonMsgEl.innerHTML = `The fixed 4% return performed <strong class="text-red-600">better</strong> by <strong class="text-red-600">${formatCurrency(
+            Math.abs(difference)
+          )}</strong>.`;
+        }
+
+        // Add current calculation to history and render table
+        const historyEntry = {
+          ticker: ticker,
+          years: document.getElementById("years").value,
+          monthlyInvestment: document.getElementById("monthlyInvestment").value,
+          startDate: stockData.initialDate,
+          totalInvested: fixedData.totalInvested,
+          finalValue: stockData.finalValue,
+          profitPercent: stockData.profitPercent,
+        };
+        calculationHistory.unshift(historyEntry); // Add to beginning of array
+        renderHistoryTable();
+
+        // Show all results
+        resultsDiv.style.display = "grid"; // Use grid for the new layout
+        renderChart(stockData, fixedData);
+      }
+
+      /**
+       * Renders the calculation history table.
+       */
+      function renderHistoryTable() {
+        historyTableBody.innerHTML = ""; // Clear previous entries
+
+        if (calculationHistory.length > 0) {
+          historyTableContainer.style.display = "block";
+        } else {
+          historyTableContainer.style.display = "none";
+          return;
+        }
+
+        calculationHistory.forEach((entry) => {
+          const row = document.createElement("tr");
+
+          row.innerHTML = `
+                    <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${
+                      entry.ticker
+                    }</td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">${
+                      entry.years
+                    }</td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">${formatCurrency(
+                      parseFloat(entry.monthlyInvestment)
+                    )}</td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">${formatCurrency(
+                      entry.totalInvested
+                    )}</td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">${formatCurrency(
+                      entry.finalValue
+                    )}</td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm font-bold">${formatPercent(
+                      entry.profitPercent
+                    )}</td>
+                `;
+          historyTableBody.appendChild(row);
+        });
+      }
+
+      /**
+       * Renders the growth chart using Chart.js.
+       * @param {object} stockData - The calculated stock portfolio data.
+       * @param {object} fixedData - The calculated fixed-return investment data.
+       */
+      function renderChart(stockData, fixedData) {
+        const ctx = document.getElementById("growthChart").getContext("2d");
+        if (growthChart) {
+          growthChart.destroy();
+        }
+        growthChart = new Chart(ctx, {
+          type: "line",
+          data: {
+            labels: stockData.labels,
+            datasets: [
+              {
+                label: `${document
+                  .getElementById("stockTicker")
+                  .value.toUpperCase()} Portfolio Value`,
+                data: stockData.history,
+                borderColor: "#4f46e5",
+                backgroundColor: "rgba(79, 70, 229, 0.1)",
+                fill: true,
+                tension: 0.1,
+              },
+              {
+                label: "Fixed 4% Return Value",
+                data: fixedData.history,
+                borderColor: "#16a34a",
+                backgroundColor: "rgba(22, 163, 74, 0.1)",
+                fill: true,
+                tension: 0.1,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                ticks: {
+                  callback: function (value, index, values) {
+                    return formatCurrency(value);
+                  },
+                },
+              },
+              x: {
+                ticks: {
+                  maxRotation: 45,
+                  minRotation: 45,
+                  autoSkip: true,
+                  maxTicksLimit: 15,
+                },
+              },
+            },
+            plugins: {
+              tooltip: {
+                callbacks: {
+                  label: function (context) {
+                    let label = context.dataset.label || "";
+                    if (label) {
+                      label += ": ";
+                    }
+                    if (context.parsed.y !== null) {
+                      label += formatCurrency(context.parsed.y);
+                    }
+                    return label;
+                  },
+                },
+              },
+            },
+          },
+        });
+      }
+
+      /**
+       * Displays an error message in the UI.
+       * @param {string} message - The error message to display.
+       */
+      function showError(message) {
+        errorMessageDiv.innerText = message;
+        errorMessageDiv.style.display = "block";
+        loader.style.display = "none";
+      }
+
+      /**
+       * Re-enables the calculate button.
+       */
+      function resetButton() {
+        calculateBtn.disabled = false;
+      }
+    </script>
+  </body>
+</html>
