@@ -110,6 +110,10 @@
       [dir="rtl"] input:checked + .toggle-bg:after {
         transform: translateX(-100%);
       }
+      [dir="rtl"] th,
+      [dir="rtl"] td {
+        text-align: right;
+      }
     </style>
   </head>
   <body class="bg-gray-900 text-gray-200">
@@ -294,13 +298,13 @@
         <!-- Results Display -->
         <div
           id="results"
-          class="grid grid-cols-1 xl:grid-cols-5 gap-8"
+          class="grid grid-cols-1 xl:grid-cols-3 gap-8"
           style="display: none"
         >
           <!-- Left Column -->
-          <div class="xl:col-span-3 space-y-8">
+          <div class="xl:col-span-1 space-y-8">
             <!-- Summary Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-1 gap-6">
               <div class="card">
                 <h3
                   id="stock-title"
@@ -537,20 +541,6 @@
                   <tr>
                     <th
                       scope="col"
-                      class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider"
-                      data-translate-key="type"
-                    >
-                      Type
-                    </th>
-                    <th
-                      scope="col"
-                      class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider"
-                      data-translate-key="stock"
-                    >
-                      Stock
-                    </th>
-                    <th
-                      scope="col"
                       class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider sortable"
                       id="sort-companyName"
                       data-translate-key="company"
@@ -560,31 +550,24 @@
                     <th
                       scope="col"
                       class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider"
-                      data-translate-key="years"
+                      data-translate-key="stock_name"
                     >
-                      Years
+                      Stock
                     </th>
                     <th
                       scope="col"
                       class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider"
-                      data-translate-key="amount"
+                      data-translate-key="stock_final_value_col"
                     >
-                      Amount ($)
-                    </th>
-                    <th
-                      scope="col"
-                      class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider"
-                      data-translate-key="final_value_col"
-                    >
-                      Final Value
+                      Stock Final Value
                     </th>
                     <th
                       scope="col"
                       class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider sortable"
                       id="sort-profitPercent"
-                      data-translate-key="profit_percent_col"
+                      data-translate-key="stock_profit_percent_col"
                     >
-                      Profit % <span id="sort-icon-profitPercent"></span>
+                      Stock Profit % <span id="sort-icon-profitPercent"></span>
                     </th>
                     <th
                       scope="col"
@@ -628,13 +611,10 @@
           chart_title: "Portfolio Growth Over Time",
           history_title: "Calculation History",
           clear_history: "Clear History",
-          type: "Type",
-          stock: "Stock",
           company: "Company",
-          years: "Years",
-          amount: "Amount ($)",
-          final_value_col: "Final Value",
-          profit_percent_col: "Profit %",
+          stock_name: "Stock",
+          stock_final_value_col: "Stock Final Value",
+          stock_profit_percent_col: "Stock Profit %",
           comparison_better:
             "The {companyName} portfolio performed better by {amount}.",
           comparison_worse:
@@ -665,13 +645,10 @@
           chart_title: "צמיחת התיק לאורך זמן",
           history_title: "היסטוריית חישובים",
           clear_history: "נקה היסטוריה",
-          type: "סוג",
-          stock: "מניה",
           company: "חברה",
-          years: "שנים",
-          amount: "סכום ($)",
-          final_value_col: "ערך סופי",
-          profit_percent_col: "רווח %",
+          stock_name: "מניה",
+          stock_final_value_col: "ערך סופי מניה",
+          stock_profit_percent_col: "רווח מניה %",
           comparison_better:
             "תיק {companyName} הניב תשואה טובה יותר ב-{amount}.",
           comparison_worse:
@@ -689,740 +666,857 @@
         column: "profitPercent",
         direction: "desc",
       };
+      let recalculateTimer = null;
 
-      // --- DOM Elements ---
-      const mainContainer = document.getElementById("main-container");
-      const calculateBtn = document.getElementById("calculateBtn");
-      const clearHistoryBtn = document.getElementById("clearHistoryBtn");
-      const investmentTypeToggle = document.getElementById(
-        "investmentTypeToggle"
-      );
-      const languageToggle = document.getElementById("languageToggle");
-      const investmentAmountLabel = document.getElementById(
-        "investmentAmountLabel"
-      );
-      const resultsDiv = document.getElementById("results");
-      const loader = document.getElementById("loader");
-      const errorMessageDiv = document.getElementById("errorMessage");
-      const errorMessageText = document.getElementById("errorMessageText");
-      const closeErrorBtn = document.getElementById("closeErrorBtn");
-      const historyTableContainer = document.getElementById(
-        "historyTableContainer"
-      );
-      const historyTableBody = document.getElementById("historyTableBody");
-      const yearsInput = document.getElementById("years");
+      document.addEventListener("DOMContentLoaded", () => {
+        // --- DOM Elements ---
+        const mainContainer = document.getElementById("main-container");
+        const calculateBtn = document.getElementById("calculateBtn");
+        const clearHistoryBtn = document.getElementById("clearHistoryBtn");
+        const investmentTypeToggle = document.getElementById(
+          "investmentTypeToggle"
+        );
+        const languageToggle = document.getElementById("languageToggle");
+        const investmentAmountLabel = document.getElementById(
+          "investmentAmountLabel"
+        );
+        const resultsDiv = document.getElementById("results");
+        const loader = document.getElementById("loader");
+        const errorMessageDiv = document.getElementById("errorMessage");
+        const errorMessageText = document.getElementById("errorMessageText");
+        const closeErrorBtn = document.getElementById("closeErrorBtn");
+        const historyTableContainer = document.getElementById(
+          "historyTableContainer"
+        );
+        const historyTableBody = document.getElementById("historyTableBody");
+        const yearsInput = document.getElementById("years");
 
-      // --- Event Listeners ---
-      calculateBtn.addEventListener("click", handleCalculation);
-      clearHistoryBtn.addEventListener("click", clearHistory);
-      closeErrorBtn.addEventListener("click", () =>
-        errorMessageDiv.classList.add("hidden")
-      );
-      document
-        .getElementById("sort-companyName")
-        .addEventListener("click", () => sortTableBy("companyName"));
-      document
-        .getElementById("sort-profitPercent")
-        .addEventListener("click", () => sortTableBy("profitPercent"));
-      investmentTypeToggle.addEventListener("change", (e) => {
-        const key = e.target.checked
-          ? "one_time_investment"
-          : "monthly_investment";
-        investmentAmountLabel.textContent = translations[currentLang][key];
-        investmentAmountLabel.dataset.translateKey = key;
-        clearHistory();
-      });
-      languageToggle.addEventListener("change", (e) => {
-        currentLang = e.target.checked ? "he" : "en";
-        translatePage();
-      });
-      yearsInput.addEventListener("change", clearHistory);
-      historyTableBody.addEventListener("click", function (event) {
-        const deleteButton = event.target.closest(".delete-btn");
-        if (deleteButton) {
-          const index = parseInt(deleteButton.dataset.index, 10);
-          deleteHistoryEntry(index);
+        // --- Event Listeners ---
+        calculateBtn.addEventListener("click", () => handleCalculation(true));
+        clearHistoryBtn.addEventListener("click", clearHistory);
+        closeErrorBtn.addEventListener("click", () =>
+          errorMessageDiv.classList.add("hidden")
+        );
+        document
+          .getElementById("sort-companyName")
+          .addEventListener("click", () => sortTableBy("companyName"));
+        document
+          .getElementById("sort-profitPercent")
+          .addEventListener("click", () => sortTableBy("profitPercent"));
+        investmentTypeToggle.addEventListener("change", (e) => {
+          const key = e.target.checked
+            ? "one_time_investment"
+            : "monthly_investment";
+          investmentAmountLabel.textContent = translations[currentLang][key];
+          investmentAmountLabel.dataset.translateKey = key;
+          clearHistory();
+        });
+        languageToggle.addEventListener("change", (e) => {
+          currentLang = e.target.checked ? "he" : "en";
+          translatePage();
+        });
+        yearsInput.addEventListener("input", () => {
+          clearTimeout(recalculateTimer);
+          recalculateTimer = setTimeout(handleRecalculateHistory, 5000);
+        });
+        historyTableBody.addEventListener("click", function (event) {
+          const deleteButton = event.target.closest(".delete-btn");
+          if (deleteButton) {
+            const index = parseInt(deleteButton.dataset.index, 10);
+            deleteHistoryEntry(index);
+          }
+        });
+
+        async function loadInitialData() {
+          const defaultTickers = ["SPY", "QQQ", "DIA"];
+          for (const ticker of defaultTickers) {
+            await handleCalculation(false, ticker);
+          }
         }
-      });
 
-      function deleteHistoryEntry(index) {
-        calculationHistory.splice(index, 1);
-        sortHistory();
-        renderHistoryTable();
+        async function handleRecalculateHistory() {
+          if (calculationHistory.length === 0) return;
 
-        if (calculationHistory.length > 0) {
-          const lastCalc = calculationHistory[0];
-          const fixedData =
-            lastCalc.type === "Monthly"
-              ? calculateMonthlyFixed(
-                  parseFloat(lastCalc.investmentAmount),
-                  parseFloat(lastCalc.years),
-                  lastCalc.fixedReturnPercent / 100
-                )
-              : calculateOneTimeFixed(
-                  parseFloat(lastCalc.investmentAmount),
-                  parseFloat(lastCalc.years),
-                  lastCalc.fixedReturnPercent / 100
+          loader.classList.remove("hidden");
+          loader.classList.add("flex");
+
+          const newYears = parseFloat(yearsInput.value);
+          const apiKey = document.getElementById("apiKey").value;
+          const newHistory = [];
+
+          try {
+            for (const entry of calculationHistory) {
+              const historicalData = await fetchStockData(
+                entry.ticker,
+                newYears,
+                apiKey
+              );
+              if (!historicalData || historicalData.length === 0) {
+                console.error(`Could not refetch data for ${entry.ticker}`);
+                continue;
+              }
+
+              let stockPortfolio, fixedInvestment;
+              const isOneTime = entry.type === "One-Time";
+              const annualRate = entry.fixedReturnPercent / 100;
+
+              if (isOneTime) {
+                stockPortfolio = calculateOneTimeStock(
+                  historicalData,
+                  parseFloat(entry.investmentAmount)
                 );
-          renderChart(fixedData);
-        } else {
+                fixedInvestment = calculateOneTimeFixed(
+                  parseFloat(entry.investmentAmount),
+                  newYears,
+                  annualRate
+                );
+              } else {
+                fixedInvestment = calculateMonthlyFixed(
+                  parseFloat(entry.investmentAmount),
+                  newYears,
+                  annualRate
+                );
+                stockPortfolio = calculateMonthlyStock(
+                  historicalData,
+                  parseFloat(entry.investmentAmount),
+                  newYears,
+                  fixedInvestment.totalInvested
+                );
+              }
+
+              newHistory.push({
+                ...entry,
+                years: newYears,
+                totalInvested: fixedInvestment.totalInvested,
+                finalValue: stockPortfolio.finalValue,
+                profitPercent: stockPortfolio.profitPercent,
+                fixedFinalValue: fixedInvestment.finalValue,
+                fixedProfitPercent: fixedInvestment.profitPercent,
+                history: stockPortfolio.history,
+                labels: stockPortfolio.labels,
+                initialDate: stockPortfolio.initialDate,
+                initialPrice: stockPortfolio.initialPrice,
+              });
+            }
+            calculationHistory = newHistory;
+            sortHistory();
+            renderHistoryTable();
+            if (calculationHistory.length > 0) {
+              const lastCalc = calculationHistory[0];
+              const fixedData =
+                lastCalc.type === "Monthly"
+                  ? calculateMonthlyFixed(
+                      parseFloat(lastCalc.investmentAmount),
+                      parseFloat(lastCalc.years),
+                      lastCalc.fixedReturnPercent / 100
+                    )
+                  : calculateOneTimeFixed(
+                      parseFloat(lastCalc.investmentAmount),
+                      parseFloat(lastCalc.years),
+                      lastCalc.fixedReturnPercent / 100
+                    );
+              renderChart(fixedData);
+            }
+          } catch (error) {
+            showError(
+              error.message || "An error occurred during recalculation."
+            );
+          } finally {
+            loader.classList.add("hidden");
+            loader.classList.remove("flex");
+          }
+        }
+
+        function deleteHistoryEntry(index) {
+          calculationHistory.splice(index, 1);
+          sortHistory();
+          renderHistoryTable();
+
+          if (calculationHistory.length > 0) {
+            const lastCalc = calculationHistory[0];
+            const fixedData =
+              lastCalc.type === "Monthly"
+                ? calculateMonthlyFixed(
+                    parseFloat(lastCalc.investmentAmount),
+                    parseFloat(lastCalc.years),
+                    lastCalc.fixedReturnPercent / 100
+                  )
+                : calculateOneTimeFixed(
+                    parseFloat(lastCalc.investmentAmount),
+                    parseFloat(lastCalc.years),
+                    lastCalc.fixedReturnPercent / 100
+                  );
+            renderChart(fixedData);
+          } else {
+            if (growthChart) {
+              growthChart.destroy();
+              growthChart = null;
+            }
+          }
+        }
+
+        function translatePage() {
+          const lang = translations[currentLang];
+          document.querySelectorAll("[data-translate-key]").forEach((el) => {
+            const key = el.dataset.translateKey;
+            if (lang[key]) {
+              let text = lang[key];
+              if (key === "fixed_return") {
+                const percent = document.getElementById("fixedReturn").value;
+                text = text.replace("{percent}", percent);
+              }
+              const textNode = Array.from(el.childNodes).find(
+                (node) => node.nodeType === Node.TEXT_NODE
+              );
+              if (textNode) {
+                textNode.textContent = text;
+              } else {
+                el.textContent = text;
+              }
+            }
+          });
+
+          if (currentLang === "he") {
+            mainContainer.dir = "rtl";
+            document.querySelectorAll("svg.mr-2").forEach((svg) => {
+              svg.classList.remove("mr-2");
+              svg.classList.add("ml-2");
+            });
+          } else {
+            mainContainer.dir = "ltr";
+            document.querySelectorAll("svg.ml-2").forEach((svg) => {
+              svg.classList.remove("ml-2");
+              svg.classList.add("mr-2");
+            });
+          }
+
+          if (calculationHistory.length > 0) {
+            renderHistoryTable();
+            const lastCalc = calculationHistory[0];
+            const fixedData =
+              lastCalc.type === "Monthly"
+                ? calculateMonthlyFixed(
+                    parseFloat(lastCalc.investmentAmount),
+                    parseFloat(lastCalc.years),
+                    lastCalc.fixedReturnPercent / 100
+                  )
+                : calculateOneTimeFixed(
+                    parseFloat(lastCalc.investmentAmount),
+                    parseFloat(lastCalc.years),
+                    lastCalc.fixedReturnPercent / 100
+                  );
+            displayResults(
+              lastCalc.ticker,
+              lastCalc.companyName,
+              lastCalc,
+              fixedData,
+              lastCalc.type === "One-Time",
+              false
+            );
+          }
+        }
+
+        function clearHistory() {
+          calculationHistory = [];
+          renderHistoryTable();
           if (growthChart) {
             growthChart.destroy();
             growthChart = null;
           }
         }
-      }
 
-      function translatePage() {
-        const lang = translations[currentLang];
-        document.querySelectorAll("[data-translate-key]").forEach((el) => {
-          const key = el.dataset.translateKey;
-          if (lang[key]) {
-            let text = lang[key];
-            if (key === "fixed_return") {
-              const percent = document.getElementById("fixedReturn").value;
-              text = text.replace("{percent}", percent);
-            }
-            const textNode = Array.from(el.childNodes).find(
-              (node) => node.nodeType === Node.TEXT_NODE
-            );
-            if (textNode) {
-              textNode.textContent = text;
-            } else {
-              el.textContent = text;
-            }
-          }
-        });
-
-        if (currentLang === "he") {
-          mainContainer.dir = "rtl";
-          document.querySelectorAll("svg.mr-2").forEach((svg) => {
-            svg.classList.remove("mr-2");
-            svg.classList.add("ml-2");
-          });
-        } else {
-          mainContainer.dir = "ltr";
-          document.querySelectorAll("svg.ml-2").forEach((svg) => {
-            svg.classList.remove("ml-2");
-            svg.classList.add("mr-2");
-          });
-        }
-
-        if (calculationHistory.length > 0) {
-          renderHistoryTable();
-          const lastCalc = calculationHistory[0];
-          const fixedData =
-            lastCalc.type === "Monthly"
-              ? calculateMonthlyFixed(
-                  parseFloat(lastCalc.investmentAmount),
-                  parseFloat(lastCalc.years),
-                  lastCalc.fixedReturnPercent / 100
-                )
-              : calculateOneTimeFixed(
-                  parseFloat(lastCalc.investmentAmount),
-                  parseFloat(lastCalc.years),
-                  lastCalc.fixedReturnPercent / 100
-                );
-          displayResults(
-            lastCalc.ticker,
-            lastCalc.companyName,
-            lastCalc,
-            fixedData,
-            lastCalc.type === "One-Time",
-            false
-          );
-        }
-      }
-
-      function clearHistory() {
-        calculationHistory = [];
-        renderHistoryTable();
-        if (growthChart) {
-          growthChart.destroy();
-          growthChart = null;
-        }
-      }
-
-      function sortTableBy(column) {
-        if (sortState.column === column) {
-          sortState.direction = sortState.direction === "asc" ? "desc" : "asc";
-        } else {
-          sortState.column = column;
-          sortState.direction = column === "profitPercent" ? "desc" : "asc";
-        }
-        sortHistory();
-        renderHistoryTable();
-      }
-
-      function sortHistory() {
-        calculationHistory.sort((a, b) => {
-          const valA = a[sortState.column];
-          const valB = b[sortState.column];
-          let comparison = 0;
-          if (valA > valB) comparison = 1;
-          else if (valA < valB) comparison = -1;
-          return sortState.direction === "asc" ? comparison : comparison * -1;
-        });
-      }
-
-      async function handleCalculation() {
-        errorMessageDiv.classList.add("hidden");
-        loader.classList.remove("hidden");
-        loader.classList.add("flex");
-        calculateBtn.disabled = true;
-
-        const stockTicker = document
-          .getElementById("stockTicker")
-          .value.toUpperCase();
-        const years = parseFloat(document.getElementById("years").value);
-        const investmentAmount = parseFloat(
-          document.getElementById("investmentAmount").value
-        );
-        const fixedReturnPercent = parseFloat(
-          document.getElementById("fixedReturn").value
-        );
-        const apiKey = document.getElementById("apiKey").value;
-        const isOneTime = investmentTypeToggle.checked;
-
-        if (
-          !stockTicker ||
-          isNaN(years) ||
-          years <= 0 ||
-          isNaN(investmentAmount) ||
-          investmentAmount <= 0 ||
-          isNaN(fixedReturnPercent) ||
-          fixedReturnPercent < 0 ||
-          !apiKey
-        ) {
-          showError("Please enter valid inputs for all fields.");
-          resetButton();
-          return;
-        }
-
-        try {
-          const [historicalData, companyName] = await Promise.all([
-            fetchStockData(stockTicker, years, apiKey),
-            fetchCompanyProfile(stockTicker, apiKey),
-          ]);
-
-          if (!historicalData || historicalData.length === 0) {
-            showError(
-              `Could not fetch any historical data for ${stockTicker}. Please check the ticker symbol and your API key.`
-            );
-            resetButton();
-            return;
-          }
-
-          const fromDate = new Date();
-          fromDate.setFullYear(new Date().getFullYear() - years);
-          const earliestAvailableDate = new Date(historicalData[0].date);
-          const fromDateBuffer = new Date(fromDate);
-          fromDateBuffer.setDate(fromDateBuffer.getDate() + 31);
-
-          if (earliestAvailableDate > fromDateBuffer) {
-            const availableYears = (
-              (new Date() - earliestAvailableDate) /
-              (1000 * 60 * 60 * 24 * 365.25)
-            ).toFixed(1);
-            const errorMessage = translations[
-              currentLang
-            ].error_insufficient_data
-              .replace("{ticker}", stockTicker)
-              .replace("{years}", availableYears);
-            showError(errorMessage);
-            resetButton();
-            return;
-          }
-
-          let stockPortfolio, fixedInvestment;
-          const annualRate = fixedReturnPercent / 100;
-
-          if (isOneTime) {
-            stockPortfolio = calculateOneTimeStock(
-              historicalData,
-              investmentAmount
-            );
-            fixedInvestment = calculateOneTimeFixed(
-              investmentAmount,
-              years,
-              annualRate
-            );
+        function sortTableBy(column) {
+          if (sortState.column === column) {
+            sortState.direction =
+              sortState.direction === "asc" ? "desc" : "asc";
           } else {
-            fixedInvestment = calculateMonthlyFixed(
-              investmentAmount,
-              years,
-              annualRate
-            );
-            stockPortfolio = calculateMonthlyStock(
-              historicalData,
-              investmentAmount,
-              years,
-              fixedInvestment.totalInvested
-            );
+            sortState.column = column;
+            sortState.direction = column === "profitPercent" ? "desc" : "asc";
+          }
+          sortHistory();
+          renderHistoryTable();
+        }
+
+        function sortHistory() {
+          calculationHistory.sort((a, b) => {
+            const valA = a[sortState.column];
+            const valB = b[sortState.column];
+            let comparison = 0;
+            if (valA > valB) comparison = 1;
+            else if (valA < valB) comparison = -1;
+            return sortState.direction === "asc" ? comparison : comparison * -1;
+          });
+        }
+
+        async function handleCalculation(
+          isUserInitiated,
+          tickerOverride = null
+        ) {
+          if (isUserInitiated) {
+            errorMessageDiv.classList.add("hidden");
+            loader.classList.remove("hidden");
+            loader.classList.add("flex");
+            calculateBtn.disabled = true;
           }
 
-          displayResults(
-            stockTicker,
-            companyName || stockTicker,
-            stockPortfolio,
-            fixedInvestment,
-            isOneTime,
-            true
+          const stockTicker =
+            tickerOverride ||
+            document.getElementById("stockTicker").value.toUpperCase();
+          const years = parseFloat(document.getElementById("years").value);
+          const investmentAmount = parseFloat(
+            document.getElementById("investmentAmount").value
           );
-        } catch (error) {
-          console.error("Calculation Error:", error);
-          showError(
-            error.message ||
-              "An error occurred during calculation. Please try again."
+          const fixedReturnPercent = parseFloat(
+            document.getElementById("fixedReturn").value
           );
-        } finally {
-          loader.classList.add("hidden");
-          loader.classList.remove("flex");
-          resetButton();
-        }
-      }
+          const apiKey = document.getElementById("apiKey").value;
+          const isOneTime = investmentTypeToggle.checked;
 
-      async function fetchCompanyProfile(ticker, apiKey) {
-        const url = `https://financialmodelingprep.com/api/v3/profile/${ticker}?apikey=${apiKey}`;
-        try {
+          if (
+            !stockTicker ||
+            isNaN(years) ||
+            years <= 0 ||
+            isNaN(investmentAmount) ||
+            investmentAmount <= 0 ||
+            isNaN(fixedReturnPercent) ||
+            fixedReturnPercent < 0 ||
+            !apiKey
+          ) {
+            if (isUserInitiated) {
+              showError("Please enter valid inputs for all fields.");
+              resetButton();
+            }
+            return;
+          }
+
+          try {
+            const [historicalData, companyName] = await Promise.all([
+              fetchStockData(stockTicker, years, apiKey),
+              fetchCompanyProfile(stockTicker, apiKey),
+            ]);
+
+            if (!historicalData || historicalData.length === 0) {
+              if (isUserInitiated) {
+                showError(
+                  `Could not fetch any historical data for ${stockTicker}. Please check the ticker symbol and your API key.`
+                );
+                resetButton();
+              }
+              return;
+            }
+
+            const fromDate = new Date();
+            fromDate.setFullYear(new Date().getFullYear() - years);
+            const earliestAvailableDate = new Date(historicalData[0].date);
+            const fromDateBuffer = new Date(fromDate);
+            fromDateBuffer.setDate(fromDateBuffer.getDate() + 31);
+
+            if (earliestAvailableDate > fromDateBuffer) {
+              if (isUserInitiated) {
+                const availableYears = (
+                  (new Date() - earliestAvailableDate) /
+                  (1000 * 60 * 60 * 24 * 365.25)
+                ).toFixed(1);
+                const errorMessage = translations[
+                  currentLang
+                ].error_insufficient_data
+                  .replace("{ticker}", stockTicker)
+                  .replace("{years}", availableYears);
+                showError(errorMessage);
+                resetButton();
+              }
+              return;
+            }
+
+            let stockPortfolio, fixedInvestment;
+            const annualRate = fixedReturnPercent / 100;
+
+            if (isOneTime) {
+              stockPortfolio = calculateOneTimeStock(
+                historicalData,
+                investmentAmount
+              );
+              fixedInvestment = calculateOneTimeFixed(
+                investmentAmount,
+                years,
+                annualRate
+              );
+            } else {
+              fixedInvestment = calculateMonthlyFixed(
+                investmentAmount,
+                years,
+                annualRate
+              );
+              stockPortfolio = calculateMonthlyStock(
+                historicalData,
+                investmentAmount,
+                years,
+                fixedInvestment.totalInvested
+              );
+            }
+
+            displayResults(
+              stockTicker,
+              companyName || stockTicker,
+              stockPortfolio,
+              fixedInvestment,
+              isOneTime,
+              true
+            );
+          } catch (error) {
+            console.error("Calculation Error:", error);
+            if (isUserInitiated) {
+              showError(
+                error.message ||
+                  "An error occurred during calculation. Please try again."
+              );
+            }
+          } finally {
+            if (isUserInitiated) {
+              loader.classList.add("hidden");
+              loader.classList.remove("flex");
+              resetButton();
+            }
+          }
+        }
+
+        async function fetchCompanyProfile(ticker, apiKey) {
+          const url = `https://financialmodelingprep.com/api/v3/profile/${ticker}?apikey=${apiKey}`;
+          try {
+            const response = await fetch(url);
+            if (!response.ok) return null;
+            const data = await response.json();
+            return data[0]?.companyName || null;
+          } catch (error) {
+            console.error("Could not fetch company profile:", error);
+            return null;
+          }
+        }
+
+        async function fetchStockData(ticker, years, apiKey) {
+          const today = new Date();
+          const fromDate = new Date();
+          fromDate.setFullYear(today.getFullYear() - years);
+          const fromDateString = fromDate.toISOString().split("T")[0];
+          const toDateString = today.toISOString().split("T")[0];
+          const url = `https://financialmodelingprep.com/api/v3/historical-price-full/${ticker}?from=${fromDateString}&to=${toDateString}&apikey=${apiKey}`;
           const response = await fetch(url);
-          if (!response.ok) return null;
+          if (response.status === 401)
+            throw new Error(
+              `API Request Failed (401 Unauthorized). Please check that your API Key is correct.`
+            );
+          if (!response.ok)
+            throw new Error(
+              `API request failed with status ${response.status}.`
+            );
           const data = await response.json();
-          return data[0]?.companyName || null;
-        } catch (error) {
-          console.error("Could not fetch company profile:", error);
-          return null;
+          return data.historical ? data.historical.reverse() : [];
         }
-      }
 
-      async function fetchStockData(ticker, years, apiKey) {
-        const today = new Date();
-        const fromDate = new Date();
-        fromDate.setFullYear(today.getFullYear() - years);
-        const fromDateString = fromDate.toISOString().split("T")[0];
-        const toDateString = today.toISOString().split("T")[0];
-        const url = `https://financialmodelingprep.com/api/v3/historical-price-full/${ticker}?from=${fromDateString}&to=${toDateString}&apikey=${apiKey}`;
-        const response = await fetch(url);
-        if (response.status === 401)
-          throw new Error(
-            `API Request Failed (401 Unauthorized). Please check that your API Key is correct.`
-          );
-        if (!response.ok)
-          throw new Error(`API request failed with status ${response.status}.`);
-        const data = await response.json();
-        return data.historical ? data.historical.reverse() : [];
-      }
+        function calculateMonthlyStock(
+          historicalData,
+          monthlyInvestment,
+          years,
+          totalInvested
+        ) {
+          let totalShares = 0;
+          const portfolioHistory = [];
+          const labels = [];
+          const totalMonths = years * 12;
+          let dataIndex = 0;
 
-      function calculateMonthlyStock(
-        historicalData,
-        monthlyInvestment,
-        years,
-        totalInvested
-      ) {
-        let totalShares = 0;
-        const portfolioHistory = [];
-        const labels = [];
-        const totalMonths = years * 12;
-        let dataIndex = 0;
-
-        for (let i = 0; i < totalMonths; i++) {
-          if (dataIndex >= historicalData.length) break;
-          const currentDate = new Date(historicalData[0].date);
-          currentDate.setMonth(currentDate.getMonth() + i);
-          let monthlyData = null;
-          while (dataIndex < historicalData.length) {
-            const recordDate = new Date(historicalData[dataIndex].date);
-            if (recordDate >= currentDate) {
-              monthlyData = historicalData[dataIndex];
+          for (let i = 0; i < totalMonths; i++) {
+            if (dataIndex >= historicalData.length) break;
+            const currentDate = new Date(historicalData[0].date);
+            currentDate.setMonth(currentDate.getMonth() + i);
+            let monthlyData = null;
+            while (dataIndex < historicalData.length) {
+              const recordDate = new Date(historicalData[dataIndex].date);
+              if (recordDate >= currentDate) {
+                monthlyData = historicalData[dataIndex];
+                break;
+              }
+              dataIndex++;
+            }
+            if (monthlyData) {
+              const price = monthlyData.adjClose;
+              totalShares += monthlyInvestment / price;
+              portfolioHistory.push(totalShares * price);
+              labels.push(monthlyData.date);
+            } else {
               break;
             }
-            dataIndex++;
           }
-          if (monthlyData) {
-            const price = monthlyData.adjClose;
-            totalShares += monthlyInvestment / price;
-            portfolioHistory.push(totalShares * price);
-            labels.push(monthlyData.date);
-          } else {
-            break;
-          }
-        }
-        const initialPrice = historicalData[0].adjClose;
-        const initialDate = historicalData[0].date;
-        const finalPrice =
-          portfolioHistory.length > 0
-            ? portfolioHistory[portfolioHistory.length - 1] / totalShares
-            : 0;
-        const finalValue = totalShares * finalPrice;
-        const profitPercent =
-          totalInvested > 0
-            ? ((finalValue - totalInvested) / totalInvested) * 100
-            : 0;
-        return {
-          finalValue,
-          history: portfolioHistory,
-          labels,
-          initialPrice,
-          initialDate,
-          profitPercent,
-        };
-      }
-
-      function calculateMonthlyFixed(monthlyInvestment, years, annualRate) {
-        const monthlyRate = annualRate / 12;
-        const totalMonths = years * 12;
-        let currentValue = 0;
-        const history = [];
-        const totalInvested = monthlyInvestment * totalMonths;
-        for (let i = 0; i < totalMonths; i++) {
-          currentValue = (currentValue + monthlyInvestment) * (1 + monthlyRate);
-          history.push(currentValue);
-        }
-        const profitPercent =
-          totalInvested > 0
-            ? ((currentValue - totalInvested) / totalInvested) * 100
-            : 0;
-        return {
-          finalValue: currentValue,
-          history,
-          totalInvested,
-          profitPercent,
-        };
-      }
-
-      function calculateOneTimeStock(historicalData, investmentAmount) {
-        const initialPrice = historicalData[0].adjClose;
-        const sharesBought = investmentAmount / initialPrice;
-        const portfolioHistory = [];
-        const labels = [];
-
-        for (let i = 0; i < historicalData.length; i++) {
-          portfolioHistory.push(sharesBought * historicalData[i].adjClose);
-          labels.push(historicalData[i].date);
-        }
-
-        const finalValue = portfolioHistory[portfolioHistory.length - 1] || 0;
-        const profitPercent =
-          investmentAmount > 0
-            ? ((finalValue - investmentAmount) / investmentAmount) * 100
-            : 0;
-        return {
-          finalValue,
-          history: portfolioHistory,
-          labels,
-          initialPrice,
-          initialDate: historicalData[0].date,
-          profitPercent,
-        };
-      }
-
-      function calculateOneTimeFixed(investmentAmount, years, annualRate) {
-        const totalMonths = years * 12;
-        const monthlyRate = annualRate / 12;
-        let currentValue = investmentAmount;
-        const history = [];
-        for (let i = 0; i < totalMonths; i++) {
-          currentValue *= 1 + monthlyRate;
-          history.push(currentValue);
-        }
-        const profitPercent =
-          investmentAmount > 0
-            ? ((currentValue - investmentAmount) / investmentAmount) * 100
-            : 0;
-        return {
-          finalValue: currentValue,
-          history,
-          totalInvested: investmentAmount,
-          profitPercent,
-        };
-      }
-
-      function formatCurrency(number) {
-        return new Intl.NumberFormat("en-US", {
-          style: "currency",
-          currency: "USD",
-          minimumFractionDigits: 2,
-        }).format(number);
-      }
-
-      function formatPercent(number) {
-        const colorClass = number >= 0 ? "text-emerald-400" : "text-red-400";
-        return `<span class="${colorClass}">${number.toFixed(2)}%</span>`;
-      }
-
-      function displayResults(
-        ticker,
-        companyName,
-        stockData,
-        fixedData,
-        isOneTime,
-        newCalculation = true
-      ) {
-        const fixedReturnPercent = document.getElementById("fixedReturn").value;
-        document.getElementById(
-          "stock-title"
-        ).innerText = `${companyName} (${ticker})`;
-        document.getElementById("stockValue").innerText = formatCurrency(
-          stockData.finalValue
-        );
-        document.getElementById("initialStockPrice").innerText = formatCurrency(
-          stockData.initialPrice
-        );
-        const date = new Date(stockData.initialDate);
-        const displayDate = new Date(
-          date.valueOf() + date.getTimezoneOffset() * 60 * 1000
-        );
-        document.getElementById("initialDate").innerText =
-          displayDate.toLocaleDateString(
-            currentLang === "he" ? "he-IL" : "en-US",
-            { month: "short", day: "numeric", year: "2-digit" }
-          );
-        document.getElementById("stockProfitPercent").innerHTML = formatPercent(
-          stockData.profitPercent
-        );
-
-        document.getElementById("fixedValue").innerText = formatCurrency(
-          fixedData.finalValue
-        );
-        document.getElementById("totalInvestment").innerText = formatCurrency(
-          fixedData.totalInvested
-        );
-        document.getElementById("fixedProfitPercent").innerHTML = formatPercent(
-          fixedData.profitPercent
-        );
-
-        const difference = stockData.finalValue - fixedData.finalValue;
-        const comparisonMsgEl = document.getElementById("comparisonMessage");
-        const lang = translations[currentLang];
-        document.getElementById("fixedReturnTitle").textContent =
-          lang.fixed_return.replace("{percent}", fixedReturnPercent);
-
-        if (difference > 0) {
-          comparisonMsgEl.innerHTML = lang.comparison_better
-            .replace(
-              "{companyName}",
-              `<strong class="text-emerald-400">${companyName}</strong>`
-            )
-            .replace(
-              "{amount}",
-              `<strong class="text-emerald-400">${formatCurrency(
-                difference
-              )}</strong>`
-            );
-        } else {
-          comparisonMsgEl.innerHTML = lang.comparison_worse
-            .replace("{percent}", fixedReturnPercent)
-            .replace(
-              "{amount}",
-              `<strong class="text-red-400">${formatCurrency(
-                Math.abs(difference)
-              )}</strong>`
-            );
-        }
-
-        if (newCalculation) {
-          const historyEntry = {
-            type: isOneTime ? "One-Time" : "Monthly",
-            ticker: ticker,
-            companyName: companyName,
-            years: document.getElementById("years").value,
-            investmentAmount: document.getElementById("investmentAmount").value,
-            fixedReturnPercent: fixedReturnPercent,
-            totalInvested: fixedData.totalInvested,
-            finalValue: stockData.finalValue,
-            profitPercent: stockData.profitPercent,
-            history: stockData.history,
-            labels: stockData.labels,
+          const initialPrice = historicalData[0].adjClose;
+          const initialDate = historicalData[0].date;
+          const finalPrice =
+            portfolioHistory.length > 0
+              ? portfolioHistory[portfolioHistory.length - 1] / totalShares
+              : 0;
+          const finalValue = totalShares * finalPrice;
+          const profitPercent =
+            totalInvested > 0
+              ? ((finalValue - totalInvested) / totalInvested) * 100
+              : 0;
+          return {
+            finalValue,
+            history: portfolioHistory,
+            labels,
+            initialPrice,
+            initialDate,
+            profitPercent,
           };
-          calculationHistory.unshift(historyEntry);
         }
 
-        sortHistory();
-        renderHistoryTable();
-
-        resultsDiv.style.display = "grid";
-        renderChart(fixedData);
-      }
-
-      function renderHistoryTable() {
-        historyTableBody.innerHTML = "";
-        if (calculationHistory.length === 0) {
-          historyTableContainer.style.display = "none";
-          return;
-        }
-        historyTableContainer.style.display = "block";
-
-        document
-          .querySelectorAll('[id^="sort-icon-"]')
-          .forEach((icon) => (icon.innerHTML = ""));
-        const currentSortIcon = document.getElementById(
-          `sort-icon-${sortState.column}`
-        );
-        if (currentSortIcon)
-          currentSortIcon.innerHTML =
-            sortState.direction === "asc" ? " ▲" : " ▼";
-
-        calculationHistory.forEach((entry, index) => {
-          const row = document.createElement("tr");
-          const typeKey = entry.type === "One-Time" ? "one_time" : "monthly";
-          row.innerHTML = `
-                    <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-white">${
-                      translations[currentLang][typeKey]
-                    }</td>
-                    <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-white">${
-                      entry.ticker
-                    }</td>
-                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-300 truncate" title="${
-                      entry.companyName
-                    }">${entry.companyName}</td>
-                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-300">${
-                      entry.years
-                    }</td>
-                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-300">${formatCurrency(
-                      parseFloat(entry.investmentAmount)
-                    )}</td>
-                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-300">${formatCurrency(
-                      entry.finalValue
-                    )}</td>
-                    <td class="px-4 py-4 whitespace-nowrap text-sm font-bold">${formatPercent(
-                      entry.profitPercent
-                    )}</td>
-                    <td class="px-2 py-4 whitespace-nowrap text-center">
-                        <button class="delete-btn text-gray-500 hover:text-red-500" data-index="${index}">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                        </button>
-                    </td>
-                `;
-          historyTableBody.appendChild(row);
-        });
-      }
-
-      function renderChart(fixedData) {
-        if (growthChart) growthChart.destroy();
-        const ctx = document.getElementById("growthChart").getContext("2d");
-        const datasets = [];
-        const colors = [
-          { border: "#818cf8", fill: ["#4f46e5", "#312e81"] },
-          { border: "#f472b6", fill: ["#ec4899", "#831843"] },
-          { border: "#fbbf24", fill: ["#f59e0b", "#92400e"] },
-          { border: "#34d399", fill: ["#10b981", "#065f46"] },
-          { border: "#a78bfa", fill: ["#8b5cf6", "#5b21b6"] },
-          { border: "#60a5fa", fill: ["#3b82f6", "#1e40af"] },
-        ];
-
-        let masterLabels = [];
-        if (calculationHistory.length > 0) {
-          masterLabels = calculationHistory.reduce(
-            (longest, current) =>
-              current.labels.length > longest.length ? current.labels : longest,
-            calculationHistory[0].labels
-          );
+        function calculateMonthlyFixed(monthlyInvestment, years, annualRate) {
+          const monthlyRate = annualRate / 12;
+          const totalMonths = years * 12;
+          let currentValue = 0;
+          const history = [];
+          const totalInvested = monthlyInvestment * totalMonths;
+          for (let i = 0; i < totalMonths; i++) {
+            currentValue =
+              (currentValue + monthlyInvestment) * (1 + monthlyRate);
+            history.push(currentValue);
+          }
+          const profitPercent =
+            totalInvested > 0
+              ? ((currentValue - totalInvested) / totalInvested) * 100
+              : 0;
+          return {
+            finalValue: currentValue,
+            history,
+            totalInvested,
+            profitPercent,
+          };
         }
 
-        calculationHistory.forEach((entry, index) => {
-          const color = colors[index % colors.length];
-          const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-          gradient.addColorStop(0, color.fill[0] + "66");
-          gradient.addColorStop(1, color.fill[1] + "1a");
-          datasets.push({
-            label: `${entry.ticker} Portfolio (${
-              translations[currentLang][
-                entry.type === "One-Time" ? "one_time" : "monthly"
-              ]
-            })`,
-            data: entry.history,
-            borderColor: color.border,
-            backgroundColor: gradient,
-            fill: true,
-            tension: 0.3,
-            pointRadius: 0,
-            pointHoverRadius: 5,
-            pointBackgroundColor: color.border,
-          });
-        });
+        function calculateOneTimeStock(historicalData, investmentAmount) {
+          const initialPrice = historicalData[0].adjClose;
+          const sharesBought = investmentAmount / initialPrice;
+          const portfolioHistory = [];
+          const labels = [];
 
-        if (fixedData) {
-          const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-          gradient.addColorStop(0, "rgba(22, 163, 74, 0.4)");
-          gradient.addColorStop(1, "rgba(22, 163, 74, 0.05)");
+          for (let i = 0; i < historicalData.length; i++) {
+            portfolioHistory.push(sharesBought * historicalData[i].adjClose);
+            labels.push(historicalData[i].date);
+          }
+
+          const finalValue = portfolioHistory[portfolioHistory.length - 1] || 0;
+          const profitPercent =
+            investmentAmount > 0
+              ? ((finalValue - investmentAmount) / investmentAmount) * 100
+              : 0;
+          return {
+            finalValue,
+            history: portfolioHistory,
+            labels,
+            initialPrice,
+            initialDate: historicalData[0].date,
+            profitPercent,
+          };
+        }
+
+        function calculateOneTimeFixed(investmentAmount, years, annualRate) {
+          const totalMonths = years * 12;
+          const monthlyRate = annualRate / 12;
+          let currentValue = investmentAmount;
+          const history = [];
+          for (let i = 0; i < totalMonths; i++) {
+            currentValue *= 1 + monthlyRate;
+            history.push(currentValue);
+          }
+          const profitPercent =
+            investmentAmount > 0
+              ? ((currentValue - investmentAmount) / investmentAmount) * 100
+              : 0;
+          return {
+            finalValue: currentValue,
+            history,
+            totalInvested: investmentAmount,
+            profitPercent,
+          };
+        }
+
+        function formatCurrency(number) {
+          return new Intl.NumberFormat("en-US", {
+            style: "currency",
+            currency: "USD",
+            minimumFractionDigits: 2,
+          }).format(number);
+        }
+
+        function formatPercent(number) {
+          const colorClass = number >= 0 ? "text-emerald-400" : "text-red-400";
+          return `<span class="${colorClass}">${number.toFixed(2)}%</span>`;
+        }
+
+        function displayResults(
+          ticker,
+          companyName,
+          stockData,
+          fixedData,
+          isOneTime,
+          newCalculation = true
+        ) {
           const fixedReturnPercent =
             document.getElementById("fixedReturn").value;
-          datasets.push({
-            label: translations[currentLang].fixed_return.replace(
-              "{percent}",
-              fixedReturnPercent
-            ),
-            data: fixedData.history,
-            borderColor: "#16a34a",
-            backgroundColor: gradient,
-            fill: true,
-            tension: 0.3,
-            pointRadius: 0,
+          document.getElementById(
+            "stock-title"
+          ).innerText = `${companyName} (${ticker})`;
+          document.getElementById("stockValue").innerText = formatCurrency(
+            stockData.finalValue
+          );
+          document.getElementById("initialStockPrice").innerText =
+            formatCurrency(stockData.initialPrice);
+          const date = new Date(stockData.initialDate);
+          const displayDate = new Date(
+            date.valueOf() + date.getTimezoneOffset() * 60 * 1000
+          );
+          document.getElementById("initialDate").innerText =
+            displayDate.toLocaleDateString(
+              currentLang === "he" ? "he-IL" : "en-US",
+              { month: "short", day: "numeric", year: "2-digit" }
+            );
+          document.getElementById("stockProfitPercent").innerHTML =
+            formatPercent(stockData.profitPercent);
+
+          document.getElementById("fixedValue").innerText = formatCurrency(
+            fixedData.finalValue
+          );
+          document.getElementById("totalInvestment").innerText = formatCurrency(
+            fixedData.totalInvested
+          );
+          document.getElementById("fixedProfitPercent").innerHTML =
+            formatPercent(fixedData.profitPercent);
+
+          const difference = stockData.finalValue - fixedData.finalValue;
+          const comparisonMsgEl = document.getElementById("comparisonMessage");
+          const lang = translations[currentLang];
+          document.getElementById("fixedReturnTitle").textContent =
+            lang.fixed_return.replace("{percent}", fixedReturnPercent);
+
+          if (difference > 0) {
+            comparisonMsgEl.innerHTML = lang.comparison_better
+              .replace(
+                "{companyName}",
+                `<strong class="text-emerald-400">${companyName}</strong>`
+              )
+              .replace(
+                "{amount}",
+                `<strong class="text-emerald-400">${formatCurrency(
+                  difference
+                )}</strong>`
+              );
+          } else {
+            comparisonMsgEl.innerHTML = lang.comparison_worse
+              .replace("{percent}", fixedReturnPercent)
+              .replace(
+                "{amount}",
+                `<strong class="text-red-400">${formatCurrency(
+                  Math.abs(difference)
+                )}</strong>`
+              );
+          }
+
+          if (newCalculation) {
+            const historyEntry = {
+              type: isOneTime ? "One-Time" : "Monthly",
+              ticker: ticker,
+              companyName: companyName,
+              years: document.getElementById("years").value,
+              investmentAmount:
+                document.getElementById("investmentAmount").value,
+              fixedReturnPercent: fixedReturnPercent,
+              totalInvested: fixedData.totalInvested,
+              finalValue: stockData.finalValue,
+              profitPercent: stockData.profitPercent,
+              fixedFinalValue: fixedData.finalValue,
+              fixedProfitPercent: fixedData.profitPercent,
+              history: stockData.history,
+              labels: stockData.labels,
+            };
+            calculationHistory.unshift(historyEntry);
+          }
+
+          sortHistory();
+          renderHistoryTable();
+
+          resultsDiv.style.display = "grid";
+          renderChart(fixedData);
+        }
+
+        function renderHistoryTable() {
+          historyTableBody.innerHTML = "";
+          if (calculationHistory.length === 0) {
+            historyTableContainer.style.display = "none";
+            return;
+          }
+          historyTableContainer.style.display = "block";
+
+          document
+            .querySelectorAll('[id^="sort-icon-"]')
+            .forEach((icon) => (icon.innerHTML = ""));
+          const currentSortIcon = document.getElementById(
+            `sort-icon-${sortState.column}`
+          );
+          if (currentSortIcon)
+            currentSortIcon.innerHTML =
+              sortState.direction === "asc" ? " ▲" : " ▼";
+
+          calculationHistory.forEach((entry, index) => {
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                        <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-300 truncate" title="${
+                          entry.companyName
+                        }">${entry.companyName}</td>
+                        <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-white">${
+                          entry.ticker
+                        }</td>
+                        <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-300">${formatCurrency(
+                          entry.finalValue
+                        )}</td>
+                        <td class="px-4 py-4 whitespace-nowrap text-sm font-bold">${formatPercent(
+                          entry.profitPercent
+                        )}</td>
+                        <td class="px-2 py-4 whitespace-nowrap text-center">
+                            <button class="delete-btn text-gray-500 hover:text-red-500" data-index="${index}">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                            </button>
+                        </td>
+                    `;
+            historyTableBody.appendChild(row);
           });
         }
 
-        growthChart = new Chart(ctx, {
-          type: "line",
-          data: { labels: masterLabels, datasets: datasets },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-              y: {
-                ticks: {
-                  color: "#9ca3af",
-                  callback: (value) => formatCurrency(value),
+        function renderChart(fixedData) {
+          if (growthChart) growthChart.destroy();
+          const ctx = document.getElementById("growthChart").getContext("2d");
+          const datasets = [];
+          const colors = [
+            { border: "#818cf8", fill: ["#4f46e5", "#312e81"] },
+            { border: "#f472b6", fill: ["#ec4899", "#831843"] },
+            { border: "#fbbf24", fill: ["#f59e0b", "#92400e"] },
+            { border: "#34d399", fill: ["#10b981", "#065f46"] },
+            { border: "#a78bfa", fill: ["#8b5cf6", "#5b21b6"] },
+            { border: "#60a5fa", fill: ["#3b82f6", "#1e40af"] },
+          ];
+
+          let masterLabels = [];
+          if (calculationHistory.length > 0) {
+            masterLabels = calculationHistory.reduce(
+              (longest, current) =>
+                current.labels.length > longest.length
+                  ? current.labels
+                  : longest,
+              calculationHistory[0].labels
+            );
+          }
+
+          calculationHistory.forEach((entry, index) => {
+            const color = colors[index % colors.length];
+            const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+            gradient.addColorStop(0, color.fill[0] + "66");
+            gradient.addColorStop(1, color.fill[1] + "1a");
+            datasets.push({
+              label: `${entry.ticker} Portfolio (${
+                translations[currentLang][
+                  entry.type === "One-Time" ? "one_time" : "monthly"
+                ]
+              })`,
+              data: entry.history,
+              borderColor: color.border,
+              backgroundColor: gradient,
+              fill: true,
+              tension: 0.3,
+              pointRadius: 0,
+              pointHoverRadius: 5,
+              pointBackgroundColor: color.border,
+            });
+          });
+
+          if (fixedData) {
+            const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+            gradient.addColorStop(0, "rgba(22, 163, 74, 0.4)");
+            gradient.addColorStop(1, "rgba(22, 163, 74, 0.05)");
+            const fixedReturnPercent =
+              document.getElementById("fixedReturn").value;
+            datasets.push({
+              label: translations[currentLang].fixed_return.replace(
+                "{percent}",
+                fixedReturnPercent
+              ),
+              data: fixedData.history,
+              borderColor: "#16a34a",
+              backgroundColor: gradient,
+              fill: true,
+              tension: 0.3,
+              pointRadius: 0,
+            });
+          }
+
+          growthChart = new Chart(ctx, {
+            type: "line",
+            data: { labels: masterLabels, datasets: datasets },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              scales: {
+                y: {
+                  ticks: {
+                    color: "#9ca3af",
+                    callback: (value) => formatCurrency(value),
+                  },
+                  grid: { color: "rgba(255, 255, 255, 0.1)" },
                 },
-                grid: { color: "rgba(255, 255, 255, 0.1)" },
-              },
-              x: {
-                ticks: {
-                  color: "#9ca3af",
-                  maxRotation: 45,
-                  minRotation: 45,
-                  autoSkip: true,
-                  maxTicksLimit: 15,
+                x: {
+                  ticks: {
+                    color: "#9ca3af",
+                    maxRotation: 45,
+                    minRotation: 45,
+                    autoSkip: true,
+                    maxTicksLimit: 15,
+                  },
+                  grid: { color: "rgba(255, 255, 255, 0.05)" },
                 },
-                grid: { color: "rgba(255, 255, 255, 0.05)" },
               },
-            },
-            plugins: {
-              legend: { labels: { color: "#d1d5db" } },
-              tooltip: {
-                backgroundColor: "#1f2937",
-                titleColor: "#e5e7eb",
-                bodyColor: "#d1d5db",
-                callbacks: {
-                  label: function (context) {
-                    let label = context.dataset.label || "";
-                    if (label) label += ": ";
-                    if (context.parsed.y !== null)
-                      label += formatCurrency(context.parsed.y);
-                    return label;
+              plugins: {
+                legend: { labels: { color: "#d1d5db" } },
+                tooltip: {
+                  backgroundColor: "#1f2937",
+                  titleColor: "#e5e7eb",
+                  bodyColor: "#d1d5db",
+                  callbacks: {
+                    label: function (context) {
+                      let label = context.dataset.label || "";
+                      if (label) label += ": ";
+                      if (context.parsed.y !== null)
+                        label += formatCurrency(context.parsed.y);
+                      return label;
+                    },
                   },
                 },
               },
             },
-          },
-        });
-      }
+          });
+        }
 
-      function showError(message) {
-        errorMessageText.textContent = message;
-        errorMessageDiv.classList.remove("hidden");
-        errorMessageDiv.classList.add("flex");
-        loader.classList.add("hidden");
-        loader.classList.remove("flex");
-      }
+        function showError(message) {
+          errorMessageText.textContent = message;
+          errorMessageDiv.classList.remove("hidden");
+          errorMessageDiv.classList.add("flex");
+          loader.classList.add("hidden");
+          loader.classList.remove("flex");
+        }
 
-      function resetButton() {
-        calculateBtn.disabled = false;
-      }
+        function resetButton() {
+          calculateBtn.disabled = false;
+        }
 
-      // Initial setup for default language
-      document.addEventListener("DOMContentLoaded", () => {
+        // Initial setup for default language
         languageToggle.checked = true;
         translatePage();
+        loadInitialData();
       });
     </script>
   </body>
