@@ -6,8 +6,10 @@
     <title>Investment Portfolio Calculator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Assistant:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
     <style>
@@ -15,6 +17,9 @@
         font-family: "Inter", sans-serif;
         background-color: #111827;
         color: #e5e7eb;
+      }
+      [dir="rtl"] body {
+        font-family: "Assistant", sans-serif;
       }
       .card {
         background-color: rgba(31, 41, 55, 0.5);
@@ -71,8 +76,12 @@
       .sortable:hover {
         color: #818cf8;
       }
-      #historyTableBody tr:hover {
-        background-color: rgba(55, 65, 81, 0.5);
+      #historyTableBody tr .delete-btn {
+        opacity: 0;
+        transition: opacity 0.2s;
+      }
+      #historyTableBody tr:hover .delete-btn {
+        opacity: 1;
       }
       /* Toggle Switch Styles */
       .toggle-bg:after {
@@ -94,24 +103,24 @@
         background-color: #4f46e5;
         border-color: #4f46e5;
       }
+      [dir="rtl"] .toggle-bg:after {
+        left: auto;
+        right: 2px;
+      }
+      [dir="rtl"] input:checked + .toggle-bg:after {
+        transform: translateX(-100%);
+      }
     </style>
   </head>
   <body class="bg-gray-900 text-gray-200">
-    <div class="p-4 sm:p-6 lg:p-8">
-      <header class="text-center mb-12">
-        <h1 class="text-4xl md:text-5xl font-bold text-white">
-          Investment Growth Calculator
-        </h1>
-        <p class="text-gray-400 mt-3 text-lg">
-          Visualize your portfolio's potential.
-        </p>
-      </header>
-
-      <main>
-        <!-- Investment Type Toggle -->
-        <div class="flex justify-end mb-4">
-          <div class="flex items-center space-x-3">
-            <span class="text-gray-400">Monthly</span>
+    <div id="main-container" class="p-4 sm:p-6 lg:p-8">
+      <header class="text-center mb-8">
+        <div class="flex justify-end items-center gap-x-8 mb-4">
+          <!-- Investment Type Toggle -->
+          <div class="flex items-center gap-x-3">
+            <span class="text-gray-400" data-translate-key="monthly"
+              >Monthly</span
+            >
             <label
               for="investmentTypeToggle"
               class="flex items-center cursor-pointer"
@@ -127,19 +136,49 @@
                 ></div>
               </div>
             </label>
-            <span class="text-gray-400">One-Time</span>
+            <span class="text-gray-400" data-translate-key="one_time"
+              >One-Time</span
+            >
+          </div>
+          <!-- Language Toggle -->
+          <div class="flex items-center gap-x-3">
+            <span class="text-gray-400">English</span>
+            <label
+              for="languageToggle"
+              class="flex items-center cursor-pointer"
+            >
+              <div class="relative">
+                <input type="checkbox" id="languageToggle" class="sr-only" />
+                <div
+                  class="toggle-bg block bg-gray-600 w-11 h-6 rounded-full"
+                ></div>
+              </div>
+            </label>
+            <span class="text-gray-400">עברית</span>
           </div>
         </div>
+        <h1
+          class="text-4xl md:text-5xl font-bold text-white"
+          data-translate-key="main_title"
+        >
+          Investment Growth Calculator
+        </h1>
+        <p class="text-gray-400 mt-3 text-lg" data-translate-key="subtitle">
+          Visualize your portfolio's potential.
+        </p>
+      </header>
 
+      <main>
         <!-- Input Form Card -->
         <div class="card mb-8">
           <div
-            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 items-end"
+            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-6 items-end"
           >
             <div>
               <label
                 for="stockTicker"
                 class="block text-sm font-medium text-gray-400"
+                data-translate-key="stock_ticker"
                 >Stock Ticker</label
               >
               <input
@@ -150,7 +189,10 @@
               />
             </div>
             <div>
-              <label for="years" class="block text-sm font-medium text-gray-400"
+              <label
+                for="years"
+                class="block text-sm font-medium text-gray-400"
+                data-translate-key="years_to_invest"
                 >Years to Invest</label
               >
               <input
@@ -165,6 +207,7 @@
                 for="investmentAmount"
                 id="investmentAmountLabel"
                 class="block text-sm font-medium text-gray-400"
+                data-translate-key="monthly_investment"
                 >Monthly Investment ($)</label
               >
               <input
@@ -174,10 +217,25 @@
                 class="mt-1 block w-full rounded-md bg-gray-700 border-gray-600 text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2"
               />
             </div>
+            <div>
+              <label
+                for="fixedReturn"
+                class="block text-sm font-medium text-gray-400"
+                data-translate-key="fixed_return_percent_input"
+                >Fixed Return (%)</label
+              >
+              <input
+                type="number"
+                id="fixedReturn"
+                value="4"
+                class="mt-1 block w-full rounded-md bg-gray-700 border-gray-600 text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2"
+              />
+            </div>
             <div class="lg:col-span-1">
               <label
                 for="apiKey"
                 class="block text-sm font-medium text-gray-400"
+                data-translate-key="api_key"
                 >FMP API Key</label
               >
               <input
@@ -191,11 +249,16 @@
                   href="https://site.financialmodelingprep.com/developer/docs"
                   target="_blank"
                   class="text-indigo-400 hover:underline"
+                  data-translate-key="get_free_key"
                   >Get a free key here</a
                 >.
               </p>
             </div>
-            <button id="calculateBtn" class="btn-primary w-full">
+            <button
+              id="calculateBtn"
+              class="btn-primary w-full"
+              data-translate-key="calculate"
+            >
               Calculate
             </button>
           </div>
@@ -215,12 +278,15 @@
                 <h3
                   id="stock-title"
                   class="text-xl font-semibold text-indigo-400 mb-4 text-center truncate"
+                  data-translate-key="stock_portfolio"
                 >
                   Stock Portfolio
                 </h3>
                 <div class="space-y-4">
                   <div class="flex justify-between items-center">
-                    <span class="text-sm text-gray-400 flex items-center"
+                    <span
+                      class="text-sm text-gray-400 flex items-center"
+                      data-translate-key="initial_price"
                       ><svg
                         class="w-4 h-4 mr-2"
                         fill="none"
@@ -242,7 +308,9 @@
                     ></span>
                   </div>
                   <div class="flex justify-between items-center">
-                    <span class="text-sm text-gray-400 flex items-center"
+                    <span
+                      class="text-sm text-gray-400 flex items-center"
+                      data-translate-key="start_date"
                       ><svg
                         class="w-4 h-4 mr-2"
                         fill="none"
@@ -264,7 +332,9 @@
                     ></span>
                   </div>
                   <div class="flex justify-between items-center">
-                    <span class="text-sm text-gray-400 flex items-center"
+                    <span
+                      class="text-sm text-gray-400 flex items-center"
+                      data-translate-key="final_value"
                       ><svg
                         class="w-4 h-4 mr-2"
                         fill="none"
@@ -286,7 +356,9 @@
                     ></span>
                   </div>
                   <div class="flex justify-between items-center">
-                    <span class="text-sm text-gray-400 flex items-center"
+                    <span
+                      class="text-sm text-gray-400 flex items-center"
+                      data-translate-key="profit_percent"
                       ><svg
                         class="w-4 h-4 mr-2"
                         fill="none"
@@ -311,13 +383,17 @@
               </div>
               <div class="card">
                 <h3
+                  id="fixedReturnTitle"
                   class="text-xl font-semibold text-emerald-400 mb-4 text-center"
+                  data-translate-key="fixed_return"
                 >
                   Fixed 4% Return
                 </h3>
                 <div class="space-y-4">
                   <div class="flex justify-between items-center">
-                    <span class="text-sm text-gray-400 flex items-center"
+                    <span
+                      class="text-sm text-gray-400 flex items-center"
+                      data-translate-key="total_invested"
                       ><svg
                         class="w-4 h-4 mr-2"
                         fill="none"
@@ -339,7 +415,9 @@
                     ></span>
                   </div>
                   <div class="flex justify-between items-center">
-                    <span class="text-sm text-gray-400 flex items-center"
+                    <span
+                      class="text-sm text-gray-400 flex items-center"
+                      data-translate-key="final_value"
                       ><svg
                         class="w-4 h-4 mr-2"
                         fill="none"
@@ -351,7 +429,7 @@
                           stroke-linecap="round"
                           stroke-linejoin="round"
                           stroke-width="2"
-                          d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                          d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283-.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
                         ></path></svg
                       >Final Value</span
                     >
@@ -361,7 +439,9 @@
                     ></span>
                   </div>
                   <div class="flex justify-between items-center">
-                    <span class="text-sm text-gray-400 flex items-center"
+                    <span
+                      class="text-sm text-gray-400 flex items-center"
+                      data-translate-key="profit_percent"
                       ><svg
                         class="w-4 h-4 mr-2"
                         fill="none"
@@ -391,7 +471,10 @@
 
             <!-- Chart -->
             <div class="card">
-              <h3 class="text-xl font-semibold mb-4 text-center text-white">
+              <h3
+                class="text-xl font-semibold mb-4 text-center text-white"
+                data-translate-key="chart_title"
+              >
                 Portfolio Growth Over Time
               </h3>
               <div style="position: relative; height: 30vh">
@@ -407,12 +490,16 @@
             style="display: none"
           >
             <div class="flex justify-between items-center mb-4">
-              <h3 class="text-xl font-semibold text-white">
+              <h3
+                class="text-xl font-semibold text-white"
+                data-translate-key="history_title"
+              >
                 Calculation History
               </h3>
               <button
                 id="clearHistoryBtn"
                 class="text-sm font-medium text-red-500 hover:text-red-400"
+                data-translate-key="clear_history"
               >
                 Clear History
               </button>
@@ -424,12 +511,14 @@
                     <th
                       scope="col"
                       class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider"
+                      data-translate-key="type"
                     >
                       Type
                     </th>
                     <th
                       scope="col"
                       class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider"
+                      data-translate-key="stock"
                     >
                       Stock
                     </th>
@@ -437,24 +526,28 @@
                       scope="col"
                       class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider sortable"
                       id="sort-companyName"
+                      data-translate-key="company"
                     >
                       Company <span id="sort-icon-companyName"></span>
                     </th>
                     <th
                       scope="col"
                       class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider"
+                      data-translate-key="years"
                     >
                       Years
                     </th>
                     <th
                       scope="col"
                       class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider"
+                      data-translate-key="amount"
                     >
                       Amount ($)
                     </th>
                     <th
                       scope="col"
                       class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider"
+                      data-translate-key="final_value_col"
                     >
                       Final Value
                     </th>
@@ -462,9 +555,14 @@
                       scope="col"
                       class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider sortable"
                       id="sort-profitPercent"
+                      data-translate-key="profit_percent_col"
                     >
                       Profit % <span id="sort-icon-profitPercent"></span>
                     </th>
+                    <th
+                      scope="col"
+                      class="px-2 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider"
+                    ></th>
                   </tr>
                 </thead>
                 <tbody id="historyTableBody" class="divide-y divide-gray-700">
@@ -488,6 +586,81 @@
     </div>
 
     <script>
+      // --- Translations ---
+      const translations = {
+        en: {
+          main_title: "Investment Growth Calculator",
+          subtitle: "Visualize your portfolio's potential.",
+          monthly: "Monthly",
+          one_time: "One-Time",
+          stock_ticker: "Stock Ticker",
+          years_to_invest: "Years to Invest",
+          monthly_investment: "Monthly Investment ($)",
+          one_time_investment: "Investment Amount ($)",
+          fixed_return_percent_input: "Fixed Return (%)",
+          api_key: "FMP API Key",
+          get_free_key: "Get a free key here.",
+          calculate: "Calculate",
+          stock_portfolio: "Stock Portfolio",
+          initial_price: "Initial Price",
+          start_date: "Start Date",
+          final_value: "Final Value",
+          profit_percent: "Profit %",
+          fixed_return: "Fixed {percent}% Return",
+          total_invested: "Total Invested",
+          chart_title: "Portfolio Growth Over Time",
+          history_title: "Calculation History",
+          clear_history: "Clear History",
+          type: "Type",
+          stock: "Stock",
+          company: "Company",
+          years: "Years",
+          amount: "Amount ($)",
+          final_value_col: "Final Value",
+          profit_percent_col: "Profit %",
+          comparison_better:
+            "The {companyName} portfolio performed better by {amount}.",
+          comparison_worse:
+            "The fixed {percent}% return performed better by {amount}.",
+        },
+        he: {
+          main_title: "מחשבון צמיחת השקעות",
+          subtitle: "הצג את פוטנציאל התיק שלך.",
+          monthly: "חודשי",
+          one_time: "חד פעמי",
+          stock_ticker: "סימול מניה",
+          years_to_invest: "שנות השקעה",
+          monthly_investment: "השקעה חודשית ($)",
+          one_time_investment: "סכום השקעה ($)",
+          fixed_return_percent_input: "תשואה קבועה (%)",
+          api_key: "מפתח API של FMP",
+          get_free_key: "קבל מפתח חינמי כאן.",
+          calculate: "חשב",
+          stock_portfolio: "תיק מניות",
+          initial_price: "מחיר התחלתי",
+          start_date: "תאריך התחלה",
+          final_value: "ערך סופי",
+          profit_percent: "רווח %",
+          fixed_return: "תשואה קבועה {percent}%",
+          total_invested: "סך הכל הושקע",
+          chart_title: "צמיחת התיק לאורך זמן",
+          history_title: "היסטוריית חישובים",
+          clear_history: "נקה היסטוריה",
+          type: "סוג",
+          stock: "מניה",
+          company: "חברה",
+          years: "שנים",
+          amount: "סכום ($)",
+          final_value_col: "ערך סופי",
+          profit_percent_col: "רווח %",
+          comparison_better:
+            "תיק {companyName} הניב תשואה טובה יותר ב-{amount}.",
+          comparison_worse:
+            "התשואה הקבועה של {percent}% הניבה תשואה טובה יותר ב-{amount}.",
+        },
+      };
+      let currentLang = "he";
+
       // --- Global State ---
       let calculationHistory = [];
       let growthChart = null;
@@ -497,11 +670,13 @@
       };
 
       // --- DOM Elements ---
+      const mainContainer = document.getElementById("main-container");
       const calculateBtn = document.getElementById("calculateBtn");
       const clearHistoryBtn = document.getElementById("clearHistoryBtn");
       const investmentTypeToggle = document.getElementById(
         "investmentTypeToggle"
       );
+      const languageToggle = document.getElementById("languageToggle");
       const investmentAmountLabel = document.getElementById(
         "investmentAmountLabel"
       );
@@ -512,6 +687,7 @@
         "historyTableContainer"
       );
       const historyTableBody = document.getElementById("historyTableBody");
+      const yearsInput = document.getElementById("years");
 
       // --- Event Listeners ---
       calculateBtn.addEventListener("click", handleCalculation);
@@ -523,10 +699,114 @@
         .getElementById("sort-profitPercent")
         .addEventListener("click", () => sortTableBy("profitPercent"));
       investmentTypeToggle.addEventListener("change", (e) => {
-        investmentAmountLabel.textContent = e.target.checked
-          ? "Investment Amount ($)"
-          : "Monthly Investment ($)";
+        const key = e.target.checked
+          ? "one_time_investment"
+          : "monthly_investment";
+        investmentAmountLabel.textContent = translations[currentLang][key];
+        investmentAmountLabel.dataset.translateKey = key;
+        clearHistory();
       });
+      languageToggle.addEventListener("change", (e) => {
+        currentLang = e.target.checked ? "he" : "en";
+        translatePage();
+      });
+      yearsInput.addEventListener("change", clearHistory);
+      historyTableBody.addEventListener("click", function (event) {
+        const deleteButton = event.target.closest(".delete-btn");
+        if (deleteButton) {
+          const index = parseInt(deleteButton.dataset.index, 10);
+          deleteHistoryEntry(index);
+        }
+      });
+
+      function deleteHistoryEntry(index) {
+        calculationHistory.splice(index, 1);
+        sortHistory();
+        renderHistoryTable();
+
+        if (calculationHistory.length > 0) {
+          const lastCalc = calculationHistory[0];
+          const fixedData =
+            lastCalc.type === "Monthly"
+              ? calculateMonthlyFixed(
+                  parseFloat(lastCalc.investmentAmount),
+                  parseFloat(lastCalc.years),
+                  lastCalc.fixedReturnPercent / 100
+                )
+              : calculateOneTimeFixed(
+                  parseFloat(lastCalc.investmentAmount),
+                  parseFloat(lastCalc.years),
+                  lastCalc.fixedReturnPercent / 100
+                );
+          renderChart(fixedData);
+        } else {
+          if (growthChart) {
+            growthChart.destroy();
+            growthChart = null;
+          }
+        }
+      }
+
+      function translatePage() {
+        const lang = translations[currentLang];
+        document.querySelectorAll("[data-translate-key]").forEach((el) => {
+          const key = el.dataset.translateKey;
+          if (lang[key]) {
+            let text = lang[key];
+            if (key === "fixed_return") {
+              const percent = document.getElementById("fixedReturn").value;
+              text = text.replace("{percent}", percent);
+            }
+            const textNode = Array.from(el.childNodes).find(
+              (node) => node.nodeType === Node.TEXT_NODE
+            );
+            if (textNode) {
+              textNode.textContent = text;
+            } else {
+              el.textContent = text;
+            }
+          }
+        });
+
+        if (currentLang === "he") {
+          mainContainer.dir = "rtl";
+          document.querySelectorAll("svg.mr-2").forEach((svg) => {
+            svg.classList.remove("mr-2");
+            svg.classList.add("ml-2");
+          });
+        } else {
+          mainContainer.dir = "ltr";
+          document.querySelectorAll("svg.ml-2").forEach((svg) => {
+            svg.classList.remove("ml-2");
+            svg.classList.add("mr-2");
+          });
+        }
+
+        if (calculationHistory.length > 0) {
+          renderHistoryTable();
+          const lastCalc = calculationHistory[0];
+          const fixedData =
+            lastCalc.type === "Monthly"
+              ? calculateMonthlyFixed(
+                  parseFloat(lastCalc.investmentAmount),
+                  parseFloat(lastCalc.years),
+                  lastCalc.fixedReturnPercent / 100
+                )
+              : calculateOneTimeFixed(
+                  parseFloat(lastCalc.investmentAmount),
+                  parseFloat(lastCalc.years),
+                  lastCalc.fixedReturnPercent / 100
+                );
+          displayResults(
+            lastCalc.ticker,
+            lastCalc.companyName,
+            lastCalc,
+            fixedData,
+            lastCalc.type === "One-Time",
+            false
+          );
+        }
+      }
 
       function clearHistory() {
         calculationHistory = [];
@@ -571,6 +851,9 @@
         const investmentAmount = parseFloat(
           document.getElementById("investmentAmount").value
         );
+        const fixedReturnPercent = parseFloat(
+          document.getElementById("fixedReturn").value
+        );
         const apiKey = document.getElementById("apiKey").value;
         const isOneTime = investmentTypeToggle.checked;
 
@@ -580,11 +863,11 @@
           years <= 0 ||
           isNaN(investmentAmount) ||
           investmentAmount <= 0 ||
+          isNaN(fixedReturnPercent) ||
+          fixedReturnPercent <= 0 ||
           !apiKey
         ) {
-          showError(
-            "Please enter valid inputs for all fields, including your API Key."
-          );
+          showError("Please enter valid inputs for all fields.");
           resetButton();
           return;
         }
@@ -604,6 +887,8 @@
           }
 
           let stockPortfolio, fixedInvestment;
+          const annualRate = fixedReturnPercent / 100;
+
           if (isOneTime) {
             stockPortfolio = calculateOneTimeStock(
               historicalData,
@@ -612,13 +897,13 @@
             fixedInvestment = calculateOneTimeFixed(
               investmentAmount,
               years,
-              0.04
+              annualRate
             );
           } else {
             fixedInvestment = calculateMonthlyFixed(
               investmentAmount,
               years,
-              0.04
+              annualRate
             );
             stockPortfolio = calculateMonthlyStock(
               historicalData,
@@ -633,7 +918,8 @@
             companyName || stockTicker,
             stockPortfolio,
             fixedInvestment,
-            isOneTime
+            isOneTime,
+            true
           );
         } catch (error) {
           console.error("Calculation Error:", error);
@@ -766,7 +1052,7 @@
           labels.push(historicalData[i].date);
         }
 
-        const finalValue = portfolioHistory[portfolioHistory.length - 1];
+        const finalValue = portfolioHistory[portfolioHistory.length - 1] || 0;
         const profitPercent =
           investmentAmount > 0
             ? ((finalValue - investmentAmount) / investmentAmount) * 100
@@ -820,8 +1106,10 @@
         companyName,
         stockData,
         fixedData,
-        isOneTime
+        isOneTime,
+        newCalculation = true
       ) {
+        const fixedReturnPercent = document.getElementById("fixedReturn").value;
         document.getElementById(
           "stock-title"
         ).innerText = `${companyName} (${ticker})`;
@@ -836,11 +1124,10 @@
           date.valueOf() + date.getTimezoneOffset() * 60 * 1000
         );
         document.getElementById("initialDate").innerText =
-          displayDate.toLocaleDateString("en-US", {
-            month: "short",
-            day: "numeric",
-            year: "2-digit",
-          });
+          displayDate.toLocaleDateString(
+            currentLang === "he" ? "he-IL" : "en-US",
+            { month: "short", day: "numeric", year: "2-digit" }
+          );
         document.getElementById("stockProfitPercent").innerHTML = formatPercent(
           stockData.profitPercent
         );
@@ -857,29 +1144,50 @@
 
         const difference = stockData.finalValue - fixedData.finalValue;
         const comparisonMsgEl = document.getElementById("comparisonMessage");
+        const lang = translations[currentLang];
+        document.getElementById("fixedReturnTitle").textContent =
+          lang.fixed_return.replace("{percent}", fixedReturnPercent);
+
         if (difference > 0) {
-          comparisonMsgEl.innerHTML = `The ${companyName} portfolio performed <strong class="text-emerald-400">better</strong> by <strong class="text-emerald-400">${formatCurrency(
-            difference
-          )}</strong>.`;
+          comparisonMsgEl.innerHTML = lang.comparison_better
+            .replace(
+              "{companyName}",
+              `<strong class="text-emerald-400">${companyName}</strong>`
+            )
+            .replace(
+              "{amount}",
+              `<strong class="text-emerald-400">${formatCurrency(
+                difference
+              )}</strong>`
+            );
         } else {
-          comparisonMsgEl.innerHTML = `The fixed 4% return performed <strong class="text-red-400">better</strong> by <strong class="text-red-400">${formatCurrency(
-            Math.abs(difference)
-          )}</strong>.`;
+          comparisonMsgEl.innerHTML = lang.comparison_worse
+            .replace("{percent}", fixedReturnPercent)
+            .replace(
+              "{amount}",
+              `<strong class="text-red-400">${formatCurrency(
+                Math.abs(difference)
+              )}</strong>`
+            );
         }
 
-        const historyEntry = {
-          type: isOneTime ? "One-Time" : "Monthly",
-          ticker: ticker,
-          companyName: companyName,
-          years: document.getElementById("years").value,
-          investmentAmount: document.getElementById("investmentAmount").value,
-          totalInvested: fixedData.totalInvested,
-          finalValue: stockData.finalValue,
-          profitPercent: stockData.profitPercent,
-          history: stockData.history,
-          labels: stockData.labels,
-        };
-        calculationHistory.unshift(historyEntry);
+        if (newCalculation) {
+          const historyEntry = {
+            type: isOneTime ? "One-Time" : "Monthly",
+            ticker: ticker,
+            companyName: companyName,
+            years: document.getElementById("years").value,
+            investmentAmount: document.getElementById("investmentAmount").value,
+            fixedReturnPercent: fixedReturnPercent,
+            totalInvested: fixedData.totalInvested,
+            finalValue: stockData.finalValue,
+            profitPercent: stockData.profitPercent,
+            history: stockData.history,
+            labels: stockData.labels,
+          };
+          calculationHistory.unshift(historyEntry);
+        }
+
         sortHistory();
         renderHistoryTable();
 
@@ -905,11 +1213,12 @@
           currentSortIcon.innerHTML =
             sortState.direction === "asc" ? " ▲" : " ▼";
 
-        calculationHistory.forEach((entry) => {
+        calculationHistory.forEach((entry, index) => {
           const row = document.createElement("tr");
+          const typeKey = entry.type === "One-Time" ? "one_time" : "monthly";
           row.innerHTML = `
                     <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-white">${
-                      entry.type
+                      translations[currentLang][typeKey]
                     }</td>
                     <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-white">${
                       entry.ticker
@@ -929,6 +1238,11 @@
                     <td class="px-4 py-4 whitespace-nowrap text-sm font-bold">${formatPercent(
                       entry.profitPercent
                     )}</td>
+                    <td class="px-2 py-4 whitespace-nowrap text-center">
+                        <button class="delete-btn text-gray-500 hover:text-red-500" data-index="${index}">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        </button>
+                    </td>
                 `;
           historyTableBody.appendChild(row);
         });
@@ -962,7 +1276,11 @@
           gradient.addColorStop(0, color.fill[0] + "66");
           gradient.addColorStop(1, color.fill[1] + "1a");
           datasets.push({
-            label: `${entry.ticker} Portfolio (${entry.type})`,
+            label: `${entry.ticker} Portfolio (${
+              translations[currentLang][
+                entry.type === "One-Time" ? "one_time" : "monthly"
+              ]
+            })`,
             data: entry.history,
             borderColor: color.border,
             backgroundColor: gradient,
@@ -978,8 +1296,13 @@
           const gradient = ctx.createLinearGradient(0, 0, 0, 400);
           gradient.addColorStop(0, "rgba(22, 163, 74, 0.4)");
           gradient.addColorStop(1, "rgba(22, 163, 74, 0.05)");
+          const fixedReturnPercent =
+            document.getElementById("fixedReturn").value;
           datasets.push({
-            label: "Fixed 4% Return",
+            label: translations[currentLang].fixed_return.replace(
+              "{percent}",
+              fixedReturnPercent
+            ),
             data: fixedData.history,
             borderColor: "#16a34a",
             backgroundColor: gradient,
@@ -1044,6 +1367,12 @@
       function resetButton() {
         calculateBtn.disabled = false;
       }
+
+      // Initial setup for default language
+      document.addEventListener("DOMContentLoaded", () => {
+        languageToggle.checked = true;
+        translatePage();
+      });
     </script>
   </body>
 </html>
