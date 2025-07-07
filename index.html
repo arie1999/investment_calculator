@@ -301,206 +301,203 @@
           class="grid grid-cols-1 xl:grid-cols-3 gap-8"
           style="display: none"
         >
-          <!-- Left Column -->
-          <div class="xl:col-span-2 space-y-8">
-            <!-- Summary Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div class="card">
-                <h3
-                  id="stock-title"
-                  class="text-xl font-semibold text-indigo-400 mb-4 text-center truncate"
-                  data-translate-key="stock_portfolio"
-                >
-                  Stock Portfolio
-                </h3>
-                <div class="space-y-4">
-                  <div class="flex justify-between items-center">
-                    <span
-                      class="text-sm text-gray-400 flex items-center"
-                      data-translate-key="initial_price"
-                      ><svg
-                        class="w-4 h-4 mr-2"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M11 11V3m0 8h8m-8 0H3m8 4.5a4.5 4.5 0 100-9 4.5 4.5 0 000 9z"
-                        ></path></svg
-                      >Initial Price</span
+          <!-- Left Column (Cards) -->
+          <div class="xl:col-span-1 space-y-8">
+            <div class="card">
+              <h3
+                id="stock-title"
+                class="text-xl font-semibold text-indigo-400 mb-4 text-center truncate"
+                data-translate-key="stock_portfolio"
+              >
+                Stock Portfolio
+              </h3>
+              <div class="space-y-4">
+                <div class="flex justify-between items-center">
+                  <span
+                    class="text-sm text-gray-400 flex items-center"
+                    data-translate-key="initial_price"
+                    ><svg
+                      class="w-4 h-4 mr-2"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
                     >
-                    <span
-                      id="initialStockPrice"
-                      class="text-lg font-bold text-white"
-                    ></span>
-                  </div>
-                  <div class="flex justify-between items-center">
-                    <span
-                      class="text-sm text-gray-400 flex items-center"
-                      data-translate-key="start_date"
-                      ><svg
-                        class="w-4 h-4 mr-2"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                        ></path></svg
-                      >Start Date</span
-                    >
-                    <span
-                      id="initialDate"
-                      class="text-lg font-bold text-white"
-                    ></span>
-                  </div>
-                  <div class="flex justify-between items-center">
-                    <span
-                      class="text-sm text-gray-400 flex items-center"
-                      data-translate-key="final_value"
-                      ><svg
-                        class="w-4 h-4 mr-2"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"
-                        ></path></svg
-                      >Final Value</span
-                    >
-                    <span
-                      id="stockValue"
-                      class="text-lg font-bold text-white"
-                    ></span>
-                  </div>
-                  <div class="flex justify-between items-center">
-                    <span
-                      class="text-sm text-gray-400 flex items-center"
-                      data-translate-key="profit_percent"
-                      ><svg
-                        class="w-4 h-4 mr-2"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
-                        ></path></svg
-                      >Profit %</span
-                    >
-                    <span
-                      id="stockProfitPercent"
-                      class="text-lg font-bold"
-                    ></span>
-                  </div>
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M11 11V3m0 8h8m-8 0H3m8 4.5a4.5 4.5 0 100-9 4.5 4.5 0 000 9z"
+                      ></path></svg
+                    >Initial Price</span
+                  >
+                  <span
+                    id="initialStockPrice"
+                    class="text-lg font-bold text-white"
+                  ></span>
                 </div>
-              </div>
-              <div class="card">
-                <h3
-                  id="fixedReturnTitle"
-                  class="text-xl font-semibold text-emerald-400 mb-4 text-center"
-                  data-translate-key="fixed_return"
-                >
-                  Fixed 4% Return
-                </h3>
-                <div class="space-y-4">
-                  <div class="flex justify-between items-center">
-                    <span
-                      class="text-sm text-gray-400 flex items-center"
-                      data-translate-key="total_invested"
-                      ><svg
-                        class="w-4 h-4 mr-2"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"
-                        ></path></svg
-                      >Total Invested</span
+                <div class="flex justify-between items-center">
+                  <span
+                    class="text-sm text-gray-400 flex items-center"
+                    data-translate-key="start_date"
+                    ><svg
+                      class="w-4 h-4 mr-2"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
                     >
-                    <span
-                      id="totalInvestment"
-                      class="text-lg font-bold text-white"
-                    ></span>
-                  </div>
-                  <div class="flex justify-between items-center">
-                    <span
-                      class="text-sm text-gray-400 flex items-center"
-                      data-translate-key="final_value"
-                      ><svg
-                        class="w-4 h-4 mr-2"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283-.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                        ></path></svg
-                      >Final Value</span
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      ></path></svg
+                    >Start Date</span
+                  >
+                  <span
+                    id="initialDate"
+                    class="text-lg font-bold text-white"
+                  ></span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span
+                    class="text-sm text-gray-400 flex items-center"
+                    data-translate-key="final_value"
+                    ><svg
+                      class="w-4 h-4 mr-2"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
                     >
-                    <span
-                      id="fixedValue"
-                      class="text-lg font-bold text-white"
-                    ></span>
-                  </div>
-                  <div class="flex justify-between items-center">
-                    <span
-                      class="text-sm text-gray-400 flex items-center"
-                      data-translate-key="profit_percent"
-                      ><svg
-                        class="w-4 h-4 mr-2"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
-                        ></path></svg
-                      >Profit %</span
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"
+                      ></path></svg
+                    >Final Value</span
+                  >
+                  <span
+                    id="stockValue"
+                    class="text-lg font-bold text-white"
+                  ></span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span
+                    class="text-sm text-gray-400 flex items-center"
+                    data-translate-key="profit_percent"
+                    ><svg
+                      class="w-4 h-4 mr-2"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
                     >
-                    <span
-                      id="fixedProfitPercent"
-                      class="text-lg font-bold"
-                    ></span>
-                  </div>
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
+                      ></path></svg
+                    >Profit %</span
+                  >
+                  <span
+                    id="stockProfitPercent"
+                    class="text-lg font-bold"
+                  ></span>
                 </div>
               </div>
             </div>
+            <div class="card">
+              <h3
+                id="fixedReturnTitle"
+                class="text-xl font-semibold text-emerald-400 mb-4 text-center"
+                data-translate-key="fixed_return"
+              >
+                Fixed 4% Return
+              </h3>
+              <div class="space-y-4">
+                <div class="flex justify-between items-center">
+                  <span
+                    class="text-sm text-gray-400 flex items-center"
+                    data-translate-key="total_invested"
+                    ><svg
+                      class="w-4 h-4 mr-2"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"
+                      ></path></svg
+                    >Total Invested</span
+                  >
+                  <span
+                    id="totalInvestment"
+                    class="text-lg font-bold text-white"
+                  ></span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span
+                    class="text-sm text-gray-400 flex items-center"
+                    data-translate-key="final_value"
+                    ><svg
+                      class="w-4 h-4 mr-2"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283-.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                      ></path></svg
+                    >Final Value</span
+                  >
+                  <span
+                    id="fixedValue"
+                    class="text-lg font-bold text-white"
+                  ></span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span
+                    class="text-sm text-gray-400 flex items-center"
+                    data-translate-key="profit_percent"
+                    ><svg
+                      class="w-4 h-4 mr-2"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
+                      ></path></svg
+                    >Profit %</span
+                  >
+                  <span
+                    id="fixedProfitPercent"
+                    class="text-lg font-bold"
+                  ></span>
+                </div>
+              </div>
+            </div>
+          </div>
 
-            <!-- Comparison Message -->
+          <div class="xl:col-span-2 space-y-8">
             <div id="comparisonMessage" class="card text-center text-lg"></div>
 
-            <!-- Chart -->
             <div class="card">
               <h3
                 class="text-xl font-semibold mb-4 text-center text-white"
@@ -512,73 +509,69 @@
                 <canvas id="growthChart"></canvas>
               </div>
             </div>
-          </div>
-
-          <!-- Right Column -->
-          <div
-            id="historyTableContainer"
-            class="xl:col-span-2 card"
-            style="display: none"
-          >
-            <div class="flex justify-between items-center mb-4">
-              <h3
-                class="text-xl font-semibold text-white"
-                data-translate-key="history_title"
-              >
-                Calculation History
-              </h3>
-              <button
-                id="clearHistoryBtn"
-                class="text-sm font-medium text-red-500 hover:text-red-400"
-                data-translate-key="clear_history"
-              >
-                Clear History
-              </button>
-            </div>
-            <div class="overflow-x-auto">
-              <table class="min-w-full divide-y divide-gray-700">
-                <thead class="bg-gray-800/50">
-                  <tr>
-                    <th
-                      scope="col"
-                      class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider sortable"
-                      id="sort-companyName"
-                      data-translate-key="company"
-                    >
-                      Company <span id="sort-icon-companyName"></span>
-                    </th>
-                    <th
-                      scope="col"
-                      class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider"
-                      data-translate-key="stock_name"
-                    >
-                      Stock
-                    </th>
-                    <th
-                      scope="col"
-                      class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider"
-                      data-translate-key="stock_final_value_col"
-                    >
-                      Stock Final Value
-                    </th>
-                    <th
-                      scope="col"
-                      class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider sortable"
-                      id="sort-profitPercent"
-                      data-translate-key="stock_profit_percent_col"
-                    >
-                      Stock Profit % <span id="sort-icon-profitPercent"></span>
-                    </th>
-                    <th
-                      scope="col"
-                      class="px-2 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider"
-                    ></th>
-                  </tr>
-                </thead>
-                <tbody id="historyTableBody" class="divide-y divide-gray-700">
-                  <!-- Rows will be inserted here by JavaScript -->
-                </tbody>
-              </table>
+            <div id="historyTableContainer" class="card" style="display: none">
+              <div class="flex justify-between items-center mb-4">
+                <h3
+                  class="text-xl font-semibold text-white"
+                  data-translate-key="history_title"
+                >
+                  Calculation History
+                </h3>
+                <button
+                  id="clearHistoryBtn"
+                  class="text-sm font-medium text-red-500 hover:text-red-400"
+                  data-translate-key="clear_history"
+                >
+                  Clear History
+                </button>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-700">
+                  <thead class="bg-gray-800/50">
+                    <tr>
+                      <th
+                        scope="col"
+                        class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider sortable"
+                        id="sort-companyName"
+                        data-translate-key="company"
+                      >
+                        Company <span id="sort-icon-companyName"></span>
+                      </th>
+                      <th
+                        scope="col"
+                        class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider"
+                        data-translate-key="stock_name"
+                      >
+                        Stock
+                      </th>
+                      <th
+                        scope="col"
+                        class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider"
+                        data-translate-key="stock_final_value_col"
+                      >
+                        Stock Final Value
+                      </th>
+                      <th
+                        scope="col"
+                        class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider sortable"
+                        id="sort-profitPercent"
+                        data-translate-key="stock_profit_percent_col"
+                      >
+                        Stock Profit %
+                        <span id="sort-icon-profitPercent"></span>
+                      </th>
+                      <th
+                        scope="col"
+                        class="px-2 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider"
+                      ></th>
+                    </tr>
+                  </thead>
+                  <tbody
+                    id="historyTableBody"
+                    class="divide-y divide-gray-700"
+                  ></tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>
